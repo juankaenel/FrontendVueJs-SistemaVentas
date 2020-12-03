@@ -1,7 +1,7 @@
 <template>
     <v-layout align-start>
         <v-flex>
-            <v-toolbar flat color="white">
+            <v-toolbar text color="white">
                 <v-toolbar-title>Categorías</v-toolbar-title>
                 <v-divider
                 class="mx-2"
@@ -13,119 +13,101 @@
                 label="Búsqueda" single-line hide-details></v-text-field>
                 <v-spacer></v-spacer>
                 <v-dialog v-model="dialog" max-width="500px">
-                <template v-slot:activator="{ on }">
-                    <v-btn color="primary" dark class="mb-2" v-on="on">Nuevo</v-btn>
-                </template>
-                <v-card>
-                    <v-card-title>
-                    <span class="headline">{{ formTitle }}</span>
-                    </v-card-title>
-        
-                    <v-card-text>
-                    <v-container grid-list-md>
-                        <v-layout wrap>
-                        <v-flex xs12 sm6 md4>
-                            <v-text-field v-model="editedItem.name" label="Dessert name"></v-text-field>
-                        </v-flex>
-                        <v-flex xs12 sm6 md4>
-                            <v-text-field v-model="editedItem.calories" label="Calories"></v-text-field>
-                        </v-flex>
-                        <v-flex xs12 sm6 md4>
-                            <v-text-field v-model="editedItem.fat" label="Fat (g)"></v-text-field>
-                        </v-flex>
-                        <v-flex xs12 sm6 md4>
-                            <v-text-field v-model="editedItem.carbs" label="Carbs (g)"></v-text-field>
-                        </v-flex>
-                        <v-flex xs12 sm6 md4>
-                            <v-text-field v-model="editedItem.protein" label="Protein (g)"></v-text-field>
-                        </v-flex>
-                        </v-layout>
-                    </v-container>
-                    </v-card-text>
-        
-                    <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" flat @click="close">Cancelar</v-btn>
-                    <v-btn color="blue darken-1" flat @click="save">Guardar</v-btn>
-                    </v-card-actions>
-                </v-card>
+                    <template v-slot:activator="{ on }">
+                        <v-btn color="primary" dark class="mb-2" v-on="on">Nuevo</v-btn>
+                    </template>
+                    <v-card>
+                        <v-card-title>
+                        <span class="headline">{{ formTitle }}</span>
+                        </v-card-title>
+                        <v-card-text>
+                        <v-container grid-list-md>
+                            <v-layout wrap>
+                                <v-flex xs12 sm12 md12>
+                                    <v-text-field v-model="name" label="Nombre"></v-text-field>
+                                </v-flex>
+                                <v-flex xs12 sm12 md12>
+                                    <v-text-field v-model="description" label="Descripción"></v-text-field>
+                                </v-flex>
+                            </v-layout>
+                        </v-container>
+                        </v-card-text>
+            
+                        <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
+                        <v-btn color="blue darken-1" text @click="save">Guardar</v-btn>
+                        </v-card-actions>
+                    </v-card>
                 </v-dialog>
             </v-toolbar>
             <v-data-table
                 :headers="headers"
-                :items="desserts"
+                :items="categories" 
                 :search="search"
                 class="elevation-1"
             >
+            <!-- Si tengo valores... -->
                 <template v-slot:items="props">
                 <td>{{ props.item.name }}</td>
-                <td class="text-xs-right">{{ props.item.calories }}</td>
-                <td class="text-xs-right">{{ props.item.fat }}</td>
-                <td class="text-xs-right">{{ props.item.carbs }}</td>
-                <td class="text-xs-right">{{ props.item.protein }}</td>
-                <td class="justify-center layout px-0">
-                    <v-icon
-                    small
-                    class="mr-2"
-                    @click="editItem(props.item)"
-                    >
-                    edit
-                    </v-icon>
-                    <v-icon
-                    small
-                    @click="deleteItem(props.item)"
-                    >
-                    delete
-                    </v-icon>
+                <td>{{ props.item.description }}</td>
+                <td>
+                    <div v-if="props.item.state">
+                        <span class="blue--text">Activo</span>
+                    </div>
+                    <div v-else>
+                        <span class="red--text">Inactivo</span>
+                    </div>
+                </td>
+                <td>
+                <v-icon
+                small
+                class="mr-2"
+                @click="editItem(item)"
+                >
+                props.pencil
+                </v-icon>
+                <v-icon
+                small
+                @click="deleteItem(item)"
+                >
+                delete
+                </v-icon>
                 </td>
                 </template>
+                <!-- Si no tengo datos... -->
                 <template v-slot:no-data>
-                <v-btn color="primary" @click="initialize">Reset</v-btn>
+                <v-btn color="primary" @click="getCategories">Resetear</v-btn>
                 </template>
             </v-data-table>
         </v-flex>
     </v-layout>
 </template>
+
 <script>
+    import axios from 'axios';
     export default {
         data(){
             return{
                 dialog: false,
                 search:'',
-                headers: [
-                {
-                    text: 'Dessert (100g serving)',
-                    align: 'left',
-                    sortable: false,
-                    value: 'name'
-                },
-                { text: 'Calories', value: 'calories' },
-                { text: 'Fat (g)', value: 'fat' },
-                { text: 'Carbs (g)', value: 'carbs' },
-                { text: 'Protein (g)', value: 'protein' },
-                { text: 'Actions', value: 'name', sortable: false }
+                categories: [], // acá alamacenaré todas las categorías que traigo de la bd
+                headers: [ // cabecera del datatable
+                { text: 'Nombre', value: 'name', sortable: true },
+                { text: 'Descripción', value: 'description', sortable: false },
+                { text: 'Estado', value: 'state', sortable: false },
+                { text: 'Opciones', value: 'opciones', sortable: false },
                 ],
-                desserts: [],
-                editedIndex: -1,
-                editedItem: {
-                name: '',
-                calories: 0,
-                fat: 0,
-                carbs: 0,
-                protein: 0
-                },
-                defaultItem: {
-                name: '',
-                calories: 0,
-                fat: 0,
-                carbs: 0,
-                protein: 0
+                editedIndex: -1, // cuando está en -1 significa que no voy a estar editando, y cuando es 1 estoy editando
+                // variables
+                _id:'',
+                name:'',
+                description:'',
                 }
-            }
         },
         computed: {
             formTitle () {
-            return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+            return this.editedIndex === -1 ? 'Nuevo Registro' : 'Editar Registro'
             }
         },
         watch: {
@@ -134,45 +116,52 @@
             }
         },
         created () {
-            this.initialize()
+            this.getCategories()
         },
         methods: {
-            initialize () {
-            this.desserts = [
-                {
-                name: 'Frozen Yogurt',
-                calories: 159,
-                fat: 6.0,
-                carbs: 24,
-                protein: 4.0
-                }
-            ]
+            getCategories(){
+                axios.get('category/list')
+                .then( res => {
+                    this.categories = res.data; 
+                })
+                .catch( error => {
+                    console.log(error);
+                })
             },
-
+            
             editItem (item) {
-            this.editedIndex = this.desserts.indexOf(item)
-            this.editedItem = Object.assign({}, item)
-            this.dialog = true
+                this.editedIndex = this.categories.indexOf(item)
+                this.editedItem = Object.assign({}, item)
+                this.dialog = true
             },
 
             deleteItem (item) {
-            const index = this.desserts.indexOf(item)
-            confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1)
+                const index = this.desserts.indexOf(item)
+                confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1)
             },
 
             close () {
-            this.dialog = false
-            setTimeout(() => {
-                this.editedItem = Object.assign({}, this.defaultItem)
-                this.editedIndex = -1
-            }, 300)
+                this.dialog = false // se oculta el modal
             },
 
+            clean() {
+                this._id = '';
+                this.name= '';
+                this.description= '';
+            },
             save () {
             if (this.editedIndex > -1) {
-                Object.assign(this.desserts[this.editedIndex], this.editedItem)
+                // Editar los datos del registro
             } else {
-                this.desserts.push(this.editedItem)
+                // Guardar un nuevo registro los datos del registro
+                axios.post('category/add',{'name': this.name,'description': this.description})
+                .then((res)=> 
+                this.clean(),
+                this.close(),
+                this.getCategories(),                
+                )
+                .catch(error=>{console.log(error);
+                })
             }
             this.close()
             }
