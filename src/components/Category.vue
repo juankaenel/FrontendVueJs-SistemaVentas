@@ -1,7 +1,7 @@
 <template>
     <v-layout align-start>
         <v-flex>
-            <v-toolbar text color="white">
+            <v-toolbar flat color="white">
                 <v-toolbar-title>Categorías</v-toolbar-title>
                 <v-divider
                 class="mx-2"
@@ -13,77 +13,49 @@
                 label="Búsqueda" single-line hide-details></v-text-field>
                 <v-spacer></v-spacer>
                 <v-dialog v-model="dialog" max-width="500px">
-                    <template v-slot:activator="{ on }">
-                        <v-btn color="primary" dark class="mb-2" v-on="on">Nuevo</v-btn>
-                    </template>
-                    <v-card>
-                        <v-card-title>
-                        <span class="headline">{{ formTitle }}</span>
-                        </v-card-title>
-                        <v-card-text>
-                        <v-container grid-list-md>
-                            <v-layout wrap>
-                                <v-flex xs12 sm12 md12>
-                                    <v-text-field v-model="name" label="Nombre"></v-text-field>
-                                </v-flex>
-                                <v-flex xs12 sm12 md12>
-                                    <v-text-field v-model="description" label="Descripción"></v-text-field>
-                                </v-flex>
-                            </v-layout>
-                        </v-container>
-                        </v-card-text>
-            
-                        <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
-                        <v-btn color="blue darken-1" text @click="save">Guardar</v-btn>
-                        </v-card-actions>
-                    </v-card>
+                <template v-slot:activator="{ on }">
+                    <v-btn color="primary" dark class="mb-2" v-on="on">Nuevo</v-btn>
+                </template>
+                <v-card>
+                    <v-card-title>
+                    <span class="headline">{{ formTitle }}</span>
+                    </v-card-title>
+        
+                    <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" flat @click="close">Cancelar</v-btn>
+                    <v-btn color="blue darken-1" flat @click="save">Guardar</v-btn>
+                    </v-card-actions>
+                </v-card>
                 </v-dialog>
             </v-toolbar>
             <v-data-table
                 :headers="headers"
-                :items="categories" 
+                :items="categories"
                 :search="search"
                 class="elevation-1"
             >
-            <!-- Si tengo valores... -->
-                <template v-slot:items="props">
-                <td>{{ props.item.name }}</td>
-                <td>{{ props.item.description }}</td>
-                <td>
-                    <div v-if="props.item.state">
+                <template v-slot:[`item.state`]="{ item }">
+                   <td>
+                    <div v-if="item.state">
                         <span class="blue--text">Activo</span>
                     </div>
                     <div v-else>
                         <span class="red--text">Inactivo</span>
                     </div>
-                </td>
-                <td>
-                <v-icon
-                small
-                class="mr-2"
-                @click="editItem(item)"
-                >
-                props.pencil
-                </v-icon>
-                <v-icon
-                small
-                @click="deleteItem(item)"
-                >
-                delete
-                </v-icon>
-                </td>
+                </td>       
                 </template>
-                <!-- Si no tengo datos... -->
+                <template v-slot:[`item.options`]="{ item }">
+                   <v-icon small class="mr-2" @click="editItem(item.id)">edit</v-icon>
+                   <v-icon small @click="deleteItem(item.id)">delete</v-icon>
+                </template>
                 <template v-slot:no-data>
-                <v-btn color="primary" @click="getCategories">Resetear</v-btn>
+                <v-btn color="primary" @click="getCategories">Reset</v-btn>
                 </template>
             </v-data-table>
         </v-flex>
     </v-layout>
 </template>
-
 <script>
     import axios from 'axios';
     export default {
@@ -96,7 +68,7 @@
                 { text: 'Nombre', value: 'name', sortable: true },
                 { text: 'Descripción', value: 'description', sortable: false },
                 { text: 'Estado', value: 'state', sortable: false },
-                { text: 'Opciones', value: 'opciones', sortable: false },
+                { text: 'Opciones', value: 'options', sortable: false },
                 ],
                 editedIndex: -1, // cuando está en -1 significa que no voy a estar editando, y cuando es 1 estoy editando
                 // variables
