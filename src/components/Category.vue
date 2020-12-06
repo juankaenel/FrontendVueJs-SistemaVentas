@@ -44,7 +44,7 @@
                     </v-card-actions>
                 </v-card>
                 </v-dialog>
-                <v-dialog v-model="adModal" max-width="290">
+                <v-dialog v-model="adModal" max-width="290"> <!--Dialog para activar o desactivar items-->
                     <v-card>
                         <v-card-title class="headline" v-if="adAction==1">
                             Activar Item
@@ -58,11 +58,14 @@
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="light-blue darken-2" flat="flat">
+                            <v-btn @click="closeDialog()" color="light-blue darken-2" text="flat">
                                 Cancelar
                             </v-btn>
-                            <v-btn color="deep-orange accent-3" flat="flat">
-                                Aceptar
+                            <v-btn v-if="adAction==1" color="deep-orange accent-3" @click="activate()" text="flat">
+                                Activar
+                            </v-btn>
+                            <v-btn v-if="adAction==2" color="deep-orange accent-3" @click="deactivate()" text="flat">
+                                Desactivar
                             </v-btn>
                         </v-card-actions>
                     </v-card>
@@ -194,8 +197,37 @@
                     this.adModal = 0; // si no se asigna un valor 1 o 2 no muestro el modal
                 }
             },
+            activate(){
+                axios.put('category/activate',{'_id':this.adId})
+                .then((res)=> 
+                this.adModal =0,
+                this.adAction=0,
+                this.adName= '',
+                this.adId='',
+                this.getCategories(),                
+                ).catch(error=>{
+                    console.log(error);
+                })
+            },
+            deactivate(){
+                axios.put('category/deactivate',{'_id':this.adId})
+                .then((res)=> 
+                this.adModal =0,
+                this.adAction=0,
+                this.adName= '',
+                this.adId='',
+                this.getCategories(),                
+                ).catch(error=>{
+                    console.log(error);
+                })
+            },
+            closeDialog(){
+                // hace referencia al modal de activar o desactivar un item, este cierra el modal
+                this.adModal=0;
+            },
 
             close () {
+                // hace referencia al modal que se ejecuta cuando queremos agregar un nuevo elemento a la tabla
                 this.dialog = false // se oculta el modal
                 this.clean();
             },
