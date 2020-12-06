@@ -1,7 +1,7 @@
 <template>
     <v-layout align-start>
         <v-flex>
-            <v-toolbar flat color="white">
+            <v-toolbar text color="white">
                 <v-toolbar-title>Categorías</v-toolbar-title>
                 <v-divider
                 class="mx-2"
@@ -20,13 +20,52 @@
                     <v-card-title>
                     <span class="headline">{{ formTitle }}</span>
                     </v-card-title>
-        
+                    <v-card-text>
+                      <v-container grid-list-md>
+                        <v-layout wrap>
+                          <v-flex xs12 sm12 md12>
+                            <v-text-field v-model="name" label="Nombre"></v-text-field>
+                          </v-flex>
+                          <v-flex xs12 sm12 md12>
+                            <v-text-field v-model="description" label="Descripción"></v-text-field>
+                          </v-flex>
+                          <v-flex xs12 sm12 md12 v-show="valid" class="font-weight-bold">
+                                    <div class="red--text" v-for="v in messageValid" :key="v" v-text="v">
+
+                                    </div>
+                          </v-flex>
+                        </v-layout>
+                      </v-container>
+                    </v-card-text>
                     <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" flat @click="close">Cancelar</v-btn>
-                    <v-btn color="blue darken-1" flat @click="save">Guardar</v-btn>
+                    <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
+                    <v-btn color="blue darken-1" text @click="save">Guardar</v-btn>
                     </v-card-actions>
                 </v-card>
+                </v-dialog>
+                <v-dialog v-model="adModal" max-width="290">
+                    <v-card>
+                        <v-card-title class="headline" v-if="adAction==1">
+                            Activar Item
+                        </v-card-title>
+                        
+                        <v-card-title class="headline" v-if="adAction==2">
+                            Desactivar Item
+                        </v-card-title>
+                        <v-card-text>
+                            Estas a punto de <span v-if="adAction==1">activar </span> <span v-if="adAction==2">desactivar </span> el item {{adName}}      
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="light-blue darken-2" flat="flat">
+                                Cancelar
+                            </v-btn>
+                            <v-btn color="deep-orange accent-3" flat="flat">
+                                Aceptar
+                            </v-btn>
+                        </v-card-actions>
+                    </v-card>
                 </v-dialog>
             </v-toolbar>
             <v-data-table
@@ -46,8 +85,15 @@
                 </td>       
                 </template>
                 <template v-slot:[`item.options`]="{ item }">
-                   <v-icon small class="mr-2" @click="editItem(item.id)">edit</v-icon>
-                   <v-icon small @click="deleteItem(item.id)">delete</v-icon>
+                   <v-icon small class="mr-2" @click="editItem(item)">edit</v-icon>
+
+                   <template v-if="item.state"> <!--En caso de que el registro esté activo y lo deseo desactivar le envio 2 como parametro-->
+                        <v-icon small @click="enableDisableShow(2,item)">block</v-icon>
+                   </template>
+                   <template v-else>
+                        <v-icon small @click="enableDisableShow(1,item)">check</v-icon> <!--Si le envio 1 quiero activar el registro-->
+                   </template>
+
                 </template>
                 <template v-slot:no-data>
                 <v-btn color="primary" @click="getCategories">Reset</v-btn>
@@ -75,6 +121,14 @@
                 _id:'',
                 name:'',
                 description:'',
+                // validaciones
+                valid:false, // si es 1 existe un error de validación, si es cero no hay error
+                messageValid:[], // almaceno los mensajes de validaciones que el usr no cumple 
+                // activar y desactivar registros
+                adModal:0, // la utilizo para activar o desactivar el modal
+                adAction:0, // 1 activar, 2 desactivar
+                adName:'', // nombre del registro que deseo activar/desactivar
+                adId:'', // id del registro que deseo activar/desactivar
                 }
         },
         computed: {
@@ -101,41 +155,83 @@
                 })
             },
             
+            validate () {
+                this.valid=false;
+                this.messageValid=[];
+                if(this.name.length < 1 || this.name.length > 50){
+                    // error de validación
+                    this.messageValid.push('El nombre de la categoría debe estar entre 1 y 50 caracteres')
+                }
+                if(this.description.length>255){
+                    // error de validación
+                    this.messageValid.push('La descripción no puede sobrepasar los 255 caracteres')
+                    
+                }
+                if(this.messageValid.length>0){
+                    this.valid = true; // existen mensajes de validación
+                }           
+                return this.valid; // returna true o false
+            },
             editItem (item) {
-                this.editedIndex = this.categories.indexOf(item)
-                this.editedItem = Object.assign({}, item)
-                this.dialog = true
+                this._id = item._id;
+                this.name = item.name;
+                this.description = item.description;
+                this.dialog = true; // muestro la pantalla modal
+                this.editedIndex = 1; // ahora paso a editar no a guardar
             },
 
-            deleteItem (item) {
-                const index = this.desserts.indexOf(item)
-                confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1)
+            enableDisableShow(action, item) {
+                this.adModal = 1;
+                this.adName = item.name;
+                this.adId = item._id;
+                if (action == 1){
+                    // activar
+                    this.adAction = 1;
+                }else if(action == 2){
+                    // desactivar
+                    this.adAction = 2;
+                }else{
+                    this.adModal = 0; // si no se asigna un valor 1 o 2 no muestro el modal
+                }
             },
 
             close () {
                 this.dialog = false // se oculta el modal
+                this.clean();
             },
 
             clean() {
                 this._id = '';
                 this.name= '';
                 this.description= '';
+                this.valid= false,
+                this.messageValid=[],
+                this.editedIndex= -1 // reinicio ya el editedindex ya que pude realizar la edición
             },
             save () {
-            if (this.editedIndex > -1) {
-                // Editar los datos del registro
+             /*    console.log(validate()); */
+            if (this.validate()){ // si returna true cancelo todo porque hay errores
+                return ;
+            }
+            if (this.editedIndex > -1) { // cuando mi editedIndex > -1 entro en modo de edición, put
+                axios.put('category/update',{'_id':this._id, 'name':this.name, 'description': this.description})
+                .then((res)=> 
+                this.getCategories(),                
+                this.clean(),
+                this.close(),
+                )
             } else {
                 // Guardar un nuevo registro los datos del registro
                 axios.post('category/add',{'name': this.name,'description': this.description})
                 .then((res)=> 
+                this.getCategories(),                
                 this.clean(),
                 this.close(),
-                this.getCategories(),                
                 )
                 .catch(error=>{console.log(error);
                 })
             }
-            this.close()
+            this.close() // cerrar el modal
             }
         }
     }

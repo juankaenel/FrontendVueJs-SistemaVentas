@@ -225,8 +225,8 @@
     <v-footer height="auto">
       <v-layout justify-center>
         <v-flex text-xs-center>
-          <v-card text-center flat tile color="primary" class="white--text">
-            <v-card-text class="white--text pt-0">
+          <v-card text tile color="primary" class="white--text">
+            <v-card-text class="text-center white--text p-0">
               Juan Kaenel &copy; 2020
             </v-card-text>
           </v-card>
