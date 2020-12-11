@@ -10,7 +10,7 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'Home',
+    name: 'home',
     component: Home,
     meta: {
       admin: true,
@@ -20,7 +20,7 @@ const routes = [
   },
   {
     path: '/login',
-    name: 'Login', 
+    name: 'login', 
     component: Login,
     meta:{
       free: true,
@@ -28,7 +28,7 @@ const routes = [
   },
   {
     path: '/category',
-    name: 'Category', // nombre que usamos en el :to="{name: 'category'}"
+    name: 'category', // nombre que usamos en el :to="{name: 'category'}"
     component: Category,
     meta: {
       admin: true,

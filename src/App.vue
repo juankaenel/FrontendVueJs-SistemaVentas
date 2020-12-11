@@ -4,10 +4,12 @@
       v-model="drawer"
       :clipped="$vuetify.breakpoint.lgAndUp"
       app
-    >
+      v-if="loggedIn" 
+    > 
       <v-list dense> <!--Opciones de menú izquierdo--->
-        <template>
-          <v-list-item :to="{name: 'Home'}">
+      <!--Solo se listará si está logueado como admin, vendedor o vendedor --->
+        <template v-if="isAdmin || isGrocer || isSeller">
+          <v-list-item :to="{name: 'home'}">
             <v-list-item-action>
               <v-icon>home</v-icon>
             </v-list-item-action>
@@ -17,7 +19,7 @@
           </v-list-item>
         </template>
         <!-- Template almacen -->
-        <template>
+        <template v-if="isAdmin || isGrocer">
           <v-list-group>
             
             <v-list-item slot="activator">
@@ -28,7 +30,7 @@
               </v-list-item-content>
             </v-list-item>
             
-            <v-list-item :to="{name: 'Category'}">
+            <v-list-item :to="{name: 'category'}">
               <v-list-item-action>
                 <v-icon>table_chart</v-icon>
               </v-list-item-action>
@@ -53,7 +55,7 @@
           </v-list-group>
         </template>
         <!-- Template compras -->
-        <template>
+        <template v-if="isAdmin || isGrocer">
           <v-list-group>
             
             <v-list-item slot="activator">
@@ -89,7 +91,7 @@
           </v-list-group>
         </template>   
         <!-- Template ventas -->
-        <template>
+        <template v-if="isAdmin || isSeller">
           <v-list-group>
             
             <v-list-item slot="activator">
@@ -125,7 +127,7 @@
           </v-list-group>
         </template>
         <!-- Template Accesos -->
-        <template>
+        <template v-if="isAdmin">
           <v-list-group>
             
             <v-list-item slot="activator">
@@ -150,7 +152,7 @@
           </v-list-group>
         </template>
          <!-- Template Consultas -->
-        <template>
+        <template v-if="isAdmin || isGrocer || isSeller">
           <v-list-group>
             
             <v-list-item slot="activator">
@@ -243,8 +245,28 @@ export default {
   name: 'App',
   data: () => {
     return {
-      drawer:null,
+      drawer:true,
     }
+  },
+  computed:{
+    loggedIn(){ // verifica si está logueado devolviendo true si existe un usr en el state
+      return this.$store.state.user; 
+    },
+    isAdmin(){  // verifica si es admin. Si existe el usr y su rol es adm devolverá true
+      return this.$store.state.user && this.$store.state.user.role == 'Administrador';
+    },
+    isGrocer(){ // verifica si es almacenero.
+      return this.$store.state.user && this.$store.state.user.role == 'Almacenero';
+    },
+    isSeller(){ // verifica si es vendedor
+      return this.$store.state.user && this.$store.state.user.role == 'Vendedor';
+    }
+  },
+  created(){ // verificamos si existe un token en el local storage para no volver a autenticarse. para eso llamo al action
+    this.$store.dispatch('autoLogin');
+  },
+  methods:{
+
   },
 };
 </script>

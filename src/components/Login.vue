@@ -1,5 +1,5 @@
 <template>
-    <v-layout>
+    <v-layout align-center justify-center>
         <v-flex xs12 sm8 md6 xl4>
             <v-card>
                 <v-toolbar dark color="blue darken-3">
@@ -35,8 +35,11 @@ export default {
         enter(){ // ingresar
             axios.post('/user/login',{email: this.email, password: this.password})
             .then(res=>{
-                console.log(res.data.user);
-                console.log(res.data.tokenReturn);
+                return res.data;
+            }).then(data=>{
+                // llamo al action para guardar el token
+                this.$store.dispatch('saveToken', data.tokenReturn) // token return es lo q nos devuelve el backend
+                this.$router.push({name:'home'});
             })
             .catch(error=>{
                 console.log(error);
