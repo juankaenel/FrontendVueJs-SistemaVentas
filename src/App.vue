@@ -208,7 +208,7 @@
      
       <v-spacer></v-spacer>
       <v-btn  @click="logout()" icon v-if="loggedIn" >
-        <v-icon>logout</v-icon>Salir
+        <v-icon>logout</v-icon> Salir
       </v-btn>
       <v-btn :to="{name: 'login'}" icon v-else>
         <v-icon>login</v-icon> Login
