@@ -207,9 +207,13 @@
       </v-toolbar-title>
      
       <v-spacer></v-spacer>
-      <v-btn icon>
-        <v-icon>logout</v-icon>
+      <v-btn  @click="logout()" icon v-if="loggedIn" >
+        <v-icon>logout</v-icon>Salir
       </v-btn>
+      <v-btn :to="{name: 'login'}" icon v-else>
+        <v-icon>login</v-icon> Login
+      </v-btn>
+
     </v-app-bar>
 
     <v-main>
@@ -266,6 +270,9 @@ export default {
     this.$store.dispatch('autoLogin');
   },
   methods:{
+    logout(){ // cerrar sesión
+      this.$store.dispatch('exit'); // llamo a la action exit que me borrará el token y hará que cierre sesión 
+    } 
 
   },
 };
