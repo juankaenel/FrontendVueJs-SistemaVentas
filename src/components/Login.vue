@@ -10,7 +10,11 @@
                 <v-card-text>
                     <v-text-field v-model="email" autofocus color="accent" label="Email" required></v-text-field>
                     <v-text-field v-model="password" type="password" color="accent" label="Password" required></v-text-field>
+                <v-flex align-center justify-center class="red--text" v-if="errorM">
+                    {{ errorM }}
+                </v-flex>
                 </v-card-text>
+                
                 <v-card-actions class="px-3 pb-3">
                     <v-flex text-xs-right>
                         <v-btn @click="enter()" color="primary">Ingresar</v-btn>
@@ -29,6 +33,7 @@ export default {
         return {
             email: '',
             password: '',
+            errorM: null, 
         }
     },
     methods:{
@@ -43,6 +48,13 @@ export default {
             })
             .catch(error=>{
                 console.log(error);
+                this.errorM = null;
+                if(error.response.status==404){
+                    this.errorM = '¡No existe el usuario o las credenciales son incorrectas!'
+                }
+                else{
+                    this.errorM = '¡Ocurrió un error con el servidor!'
+                }
             })
         }
     }
