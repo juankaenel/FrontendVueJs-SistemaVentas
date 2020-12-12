@@ -197,6 +197,7 @@
       app
       color="blue darken-3"
       dark
+      fixed
     >
       <v-toolbar-title
         style="width: 300px"
@@ -207,13 +208,14 @@
       </v-toolbar-title>
      
       <v-spacer></v-spacer>
-      <v-btn  @click="logout()" icon v-if="loggedIn" >
-        <v-icon>logout</v-icon> Salir
-      </v-btn>
-      <v-btn :to="{name: 'login'}" icon v-else>
-        <v-icon>login</v-icon> Login
-      </v-btn>
-
+      
+        <v-btn class="mr-2" @click="logout()" icon v-if="loggedIn" >
+          <v-icon>logout</v-icon> Salir
+        </v-btn>
+        <v-btn class="mr-2" :to="{name: 'login'}" icon v-else>
+          <v-icon>login</v-icon> Login
+        </v-btn>
+      
     </v-app-bar>
 
     <v-main>

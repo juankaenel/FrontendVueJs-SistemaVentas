@@ -149,7 +149,9 @@
         },
         methods: {
             getCategories(){
-                axios.get('category/list')
+                let header = {"token": this.$store.state.token} // mando el token
+                let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
+                axios.get('category/list', configuration) 
                 .then( res => {
                     this.categories = res.data; 
                 })
@@ -198,7 +200,9 @@
                 }
             },
             activate(){
-                axios.put('category/activate',{'_id':this.adId})
+                let header = {"token": this.$store.state.token} // mando el token
+                let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
+                axios.put('category/activate',{'_id':this.adId}, configuration)
                 .then((res)=> 
                 this.adModal =0,
                 this.adAction=0,
@@ -210,7 +214,9 @@
                 })
             },
             deactivate(){
-                axios.put('category/deactivate',{'_id':this.adId})
+                let header = {"token": this.$store.state.token} 
+                let configuration = {headers: header}; 
+                axios.put('category/deactivate',{'_id':this.adId}, configuration)
                 .then((res)=> 
                 this.adModal =0,
                 this.adAction=0,
@@ -240,21 +246,26 @@
                 this.messageValid=[],
                 this.editedIndex= -1 // reinicio ya el editedindex ya que pude realizar la edición
             },
+            // editar y guardar
             save () {
              /*    console.log(validate()); */
             if (this.validate()){ // si returna true cancelo todo porque hay errores
                 return ;
             }
             if (this.editedIndex > -1) { // cuando mi editedIndex > -1 entro en modo de edición, put
-                axios.put('category/update',{'_id':this._id, 'name':this.name, 'description': this.description})
+                let header = {"token": this.$store.state.token} // mando el token
+                let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
+                axios.put('category/update',{'_id':this._id, 'name':this.name, 'description': this.description}, configuration)
                 .then((res)=> 
                 this.getCategories(),                
                 this.clean(),
                 this.close(),
                 )
             } else {
+                let header = {"token": this.$store.state.token} // mando el token
+                let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
                 // Guardar un nuevo registro los datos del registro
-                axios.post('category/add',{'name': this.name,'description': this.description})
+                axios.post('category/add',{'name': this.name,'description': this.description}, configuration)
                 .then((res)=> 
                 this.getCategories(),                
                 this.clean(),
