@@ -3,8 +3,10 @@ import VueRouter from 'vue-router'
 import Store from '../store/index'
 import Home from '../views/Home.vue'
 import Category from '../components/Category'
+import User from '../components/User'
 import Login from '../components/Login'
 import store from '../store/index'
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -34,7 +36,14 @@ const routes = [
       admin: true,
       grocer: true, // almacenero
     }
-    
+  },
+  {
+    path: '/user',
+    name: 'user', // nombre que usamos en el :to="{name: 'user'}"
+    component: User,
+    meta: {
+      admin: true,
+    }
   },
 
 ]
