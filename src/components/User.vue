@@ -23,12 +23,35 @@
                     <v-card-text>
                       <v-container grid-list-md>
                         <v-layout wrap>
-                          <v-flex xs12 sm12 md12>
+                          
+                          <v-flex xs12 sm6 md6>
                             <v-text-field v-model="name" label="Nombre"></v-text-field>
                           </v-flex>
-                          <v-flex xs12 sm12 md12>
-                            <v-text-field v-model="description" label="Descripción"></v-text-field>
+                          <v-flex xs12 sm6 md6>
+                            <v-select v-model="role" :items="roles" label="Rol"></v-select>
                           </v-flex>
+
+                          <v-flex xs12 sm6 md6>
+                            <v-select v-model="docType" :items="docTypes" label="Tipo de documento"></v-select>
+                          </v-flex>
+                          <v-flex xs12 sm6 md6>
+                            <v-text-field v-model="docNumber" label="Número de documento"></v-text-field>
+                          </v-flex>
+
+                          <v-flex xs12 sm6 md6>
+                            <v-text-field v-model="direction" label="Dirección"></v-text-field>
+                          </v-flex>
+                          <v-flex xs12 sm6 md6>
+                            <v-text-field v-model="phone" label="Número de teléfono"></v-text-field>
+                          </v-flex>  
+
+                          <v-flex xs12 sm6 md6>
+                            <v-text-field v-model="email" label="Email"></v-text-field>
+                          </v-flex>
+                          <v-flex xs12 sm6 md6>
+                            <v-text-field v-model="password" type="password" label="Contraseña"></v-text-field>
+                          </v-flex>  
+
                           <v-flex xs12 sm12 md12 v-show="valid" class="font-weight-bold">
                                     <div class="red--text" v-for="v in messageValid" :key="v" v-text="v">
 
@@ -128,7 +151,15 @@
                 // variables
                 _id:'',
                 name:'',
-                description:'',
+                role:'',
+                roles: ['Administrador', 'Almacenero', 'Vendedor'],
+                docType: '',
+                docTypes : ['DNI','RUC', 'PASAPORTE', 'CEDULA'],
+                docNumber: '',
+                direction: '',
+                phone: '',
+                email: '',
+                password: '',
                 // validaciones
                 valid:false, // si es 1 existe un error de validación, si es cero no hay error
                 messageValid:[], // almaceno los mensajes de validaciones que el usr no cumple 
@@ -168,15 +199,32 @@
             validate () {
                 this.valid=false;
                 this.messageValid=[];
+                if(!this.role){
+                    // error de validación
+                    console.log('falta rol');
+                    this.messageValid.push('Debe seleccionar un rol')
+                }
                 if(this.name.length < 1 || this.name.length > 50){
-                    // error de validación
-                    this.messageValid.push('El nombre de la categoría debe estar entre 1 y 50 caracteres')
+                    this.messageValid.push('El nombre de la usuario debe estar entre 1 y 50 caracteres')
                 }
-                if(this.description.length>255){
-                    // error de validación
-                    this.messageValid.push('La descripción no puede sobrepasar los 255 caracteres')
-                    
+                if(this.docNumber.length>20){  
+                    this.messageValid.push('El documento no puede tener más de 20 caracteres')
                 }
+                if(this.direction.length>70){  
+                    this.messageValid.push('La dirección no puede tener más de 70 caracteres')
+                }
+                if(this.phone.length>20){  
+                    this.messageValid.push('El número de teléfono no puede tener más de 20 caracteres')
+                }
+                if(this.email.length < 1 || this.email.length > 50){
+                    this.messageValid.push('El email del usuario debe estar entre 1 y 50 caracteres')
+                }
+
+                if(this.password.length < 1 || this.password.length > 64){
+                    this.messageValid.push('La contraseña del usuario debe estar entre 1 y 64 caracteres')
+                }
+
+
                 if(this.messageValid.length>0){
                     this.valid = true; // existen mensajes de validación
                 }           
@@ -245,8 +293,14 @@
 
             clean() {
                 this._id = '';
+                this.role= '';
                 this.name= '';
-                this.description= '';
+                this.docNumber= '';
+                this.direction= '';
+                this.phone= '';
+                this.email= '';
+                this.password= '';
+
                 this.valid= false,
                 this.messageValid=[],
                 this.editedIndex= -1 // reinicio ya el editedindex ya que pude realizar la edición
@@ -260,9 +314,9 @@
             if (this.editedIndex > -1) { // cuando mi editedIndex > -1 entro en modo de edición, put
                 let header = {"token": this.$store.state.token} // mando el token
                 let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
-                axios.put('category/update',{'_id':this._id, 'name':this.name, 'description': this.description}, configuration)
+                axios.put('user/update',{'_id':this._id,'role':this.role, 'name':this.name, 'docType': this.docType, 'docNumber':this.docNumber, 'direction': this.direction, 'phone': this.phone, 'email':this.email, 'password': this.password}, configuration)
                 .then((res)=> 
-                this.getCategories(),                
+                this.getUsers(),                
                 this.clean(),
                 this.close(),
                 )
@@ -270,9 +324,9 @@
                 let header = {"token": this.$store.state.token} // mando el token
                 let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
                 // Guardar un nuevo registro los datos del registro
-                axios.post('category/add',{'name': this.name,'description': this.description}, configuration)
+                axios.post('user/add',{'_id':this._id,'role':this.role, 'name':this.name, 'docType': this.docType, 'docNumber':this.docNumber, 'direction': this.direction, 'phone': this.phone, 'email':this.email, 'password': this.password}, configuration)
                 .then((res)=> 
-                this.getCategories(),                
+                this.getUsers(),                
                 this.clean(),
                 this.close(),
                 )
