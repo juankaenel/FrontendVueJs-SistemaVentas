@@ -232,8 +232,14 @@
             },
             editItem (item) {
                 this._id = item._id;
+                this.role = item.role;
                 this.name = item.name;
-                this.description = item.description;
+                this.docType = item.docType;
+                this.docNumber = item.docNumber;
+                this.direction = item.direction;
+                this.phone = item.phone;
+                this.email = item.email;
+                this.password = item.password;
                 this.dialog = true; // muestro la pantalla modal
                 this.editedIndex = 1; // ahora paso a editar no a guardar
             },
@@ -308,23 +314,30 @@
             // editar y guardar
             save () {
              /*    console.log(validate()); */
+                let header = {"token": this.$store.state.token} // mando el token
+                let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
             if (this.validate()){ // si returna true cancelo todo porque hay errores
                 return ;
             }
             if (this.editedIndex > -1) { // cuando mi editedIndex > -1 entro en modo de edición, put
-                let header = {"token": this.$store.state.token} // mando el token
-                let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
-                axios.put('user/update',{'_id':this._id,'role':this.role, 'name':this.name, 'docType': this.docType, 'docNumber':this.docNumber, 'direction': this.direction, 'phone': this.phone, 'email':this.email, 'password': this.password}, configuration)
+                axios.put('user/update',{
+                    '_id':this._id,
+                    'role':this.role, 
+                    'name':this.name, 
+                    'docType': this.docType, 
+                    'docNumber':this.docNumber, 
+                    'direction': this.direction, 
+                    'phone': this.phone, 
+                    'email':this.email, 
+                    'password': this.password}
+                    , configuration)
                 .then((res)=> 
                 this.getUsers(),                
                 this.clean(),
                 this.close(),
                 )
             } else {
-                let header = {"token": this.$store.state.token} // mando el token
-                let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
-                // Guardar un nuevo registro los datos del registro
-                axios.post('user/add',{'_id':this._id,'role':this.role, 'name':this.name, 'docType': this.docType, 'docNumber':this.docNumber, 'direction': this.direction, 'phone': this.phone, 'email':this.email, 'password': this.password}, configuration)
+                axios.post('user/add',{'role':this.role, 'name':this.name, 'docType': this.docType, 'docNumber':this.docNumber, 'direction': this.direction, 'phone': this.phone, 'email':this.email, 'password': this.password}, configuration)
                 .then((res)=> 
                 this.getUsers(),                
                 this.clean(),
