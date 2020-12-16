@@ -261,13 +261,13 @@
             activate(){
                 let header = {"token": this.$store.state.token} // mando el token
                 let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
-                axios.put('category/activate',{'_id':this.adId}, configuration)
+                axios.put('user/activate',{'_id':this.adId}, configuration)
                 .then((res)=> 
                 this.adModal =0,
                 this.adAction=0,
                 this.adName= '',
                 this.adId='',
-                this.getCategories(),                
+                this.getUsers(),                
                 ).catch(error=>{
                     console.log(error);
                 })
@@ -275,13 +275,13 @@
             deactivate(){
                 let header = {"token": this.$store.state.token} 
                 let configuration = {headers: header}; 
-                axios.put('category/deactivate',{'_id':this.adId}, configuration)
+                axios.put('user/deactivate',{'_id':this.adId}, configuration)
                 .then((res)=> 
                 this.adModal =0,
                 this.adAction=0,
                 this.adName= '',
                 this.adId='',
-                this.getCategories(),                
+                this.getUsers(),                
                 ).catch(error=>{
                     console.log(error);
                 })
