@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Store from '../store/index'
 import Home from '../views/Home.vue'
 import Category from '../components/Category'
+import Article from '../components/Article'
 import User from '../components/User'
 import Login from '../components/Login'
 import store from '../store/index'
@@ -43,6 +44,15 @@ const routes = [
     component: User,
     meta: {
       admin: true,
+    }
+  },
+  {
+    path: '/article',
+    name: 'article', 
+    component: Article,
+    meta: {
+      admin: true,
+      grocer:true,
     }
   },
 
