@@ -23,9 +23,21 @@
                     <v-card-text>
                       <v-container grid-list-md>
                         <v-layout wrap>
+                          <v-flex xs12 sm6 md6>
+                            <v-text-field v-model="code" label="Código"></v-text-field>
+                          </v-flex>
+                          <v-flex xs12 sm6 md6>
+                            <v-select v-model="category"
+                                :items="categories"
+                                label="Categoría"
+                                >
+                            </v-select>
+                          </v-flex>
+                        
                           <v-flex xs12 sm12 md12>
                             <v-text-field v-model="name" label="Nombre"></v-text-field>
                           </v-flex>
+
                           <v-flex xs12 sm12 md12>
                             <v-text-field v-model="description" label="Descripción"></v-text-field>
                           </v-flex>
@@ -131,8 +143,13 @@
                 name:'',
                 code:'',
                 category:'',
-                stock:'',
-                salePrice:'',
+                categories:[
+                    {text:'Categoría 1',value:'1'},
+                    {text:'Categoría 2',value:'2'},
+                    {text:'Categoría 3',value:'3'},
+                ],
+                stock:0,
+                salePrice:0,
                 
                 description:'',
                 // validaciones
