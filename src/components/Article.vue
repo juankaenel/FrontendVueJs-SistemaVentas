@@ -38,6 +38,14 @@
                             <v-text-field v-model="name" label="Nombre"></v-text-field>
                           </v-flex>
 
+                           <v-flex xs12 sm6 md6>
+                            <v-text-field type="number" v-model="stock" label="Stock"></v-text-field>
+                          </v-flex>
+
+                           <v-flex xs12 sm6 md6>
+                            <v-text-field v-model="salePrice" label="Precio de venta"></v-text-field>
+                          </v-flex>
+
                           <v-flex xs12 sm12 md12>
                             <v-text-field v-model="description" label="Descripción"></v-text-field>
                           </v-flex>
@@ -143,14 +151,9 @@
                 name:'',
                 code:'',
                 category:'',
-                categories:[
-                    {text:'Categoría 1',value:'1'},
-                    {text:'Categoría 2',value:'2'},
-                    {text:'Categoría 3',value:'3'},
-                ],
+                categories:[],
                 stock:0,
                 salePrice:0,
-                
                 description:'',
                 // validaciones
                 valid:false, // si es 1 existe un error de validación, si es cero no hay error
@@ -173,12 +176,31 @@
             }
         },
         created () {
-            this.getArticles()
+            this.getArticles();
+            this.selectCategories();
         },
         methods: {
+            selectCategories(){
+                let categoriesArray = []; // guardo todas las categorias en la consulta axios
+                let categoriesAct=[]; // guardamos las categorias activas
+                let header = {"token": this.$store.state.token} 
+                let configuration = {headers: header}; 
+                axios.get('category/list', configuration) 
+                .then( res => {
+                    categoriesArray = res.data;
+                    categoriesAct = categoriesArray.filter(cat=>cat.state === 1) // filtro por estado activado
+                    /* console.log(categoriesAct); */
+                    categoriesAct.map(cat=>{ // pusheo las categorias activas para mostrar en el select
+                        this.categories.push({'text':cat.name,'value':cat._id}); // agregamos los elementos al array de categories
+                    })  
+                })
+                .catch( error => {
+                    console.log(error);
+                })
+            },
             getArticles(){
-                let header = {"token": this.$store.state.token} // mando el token
-                let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
+                let header = {"token": this.$store.state.token} 
+                let configuration = {headers: header}; 
                 axios.get('article/list', configuration) 
                 .then( res => {
                     this.articles = res.data; 
