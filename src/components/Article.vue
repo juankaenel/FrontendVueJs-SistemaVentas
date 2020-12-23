@@ -213,14 +213,23 @@
             validate () {
                 this.valid=false;
                 this.messageValid=[];
+                if(!this.category){
+                    this.messageValid.push('Debe seleccionar una categoría')
+                }
+                if(this.code.length > 64){
+                    this.messageValid.push('El código no debe ser mayor a 64 caracteres')
+                }
                 if(this.name.length < 1 || this.name.length > 50){
-                    // error de validación
-                    this.messageValid.push('El nombre de la categoría debe estar entre 1 y 50 caracteres')
+                    this.messageValid.push('El nombre del artículo debe estar entre 1 y 50 caracteres')
                 }
                 if(this.description.length>255){
-                    // error de validación
-                    this.messageValid.push('La descripción no puede sobrepasar los 255 caracteres')
-                    
+                    this.messageValid.push('La descripción del artículo no puede sobrepasar los 255 caracteres')
+                }
+                if(this.stock.length < 0){
+                    this.messageValid.push('Ingrese un stock válido')
+                }
+                if(this.stock.length < 0){
+                    this.messageValid.push('Ingrese un precio de venta válido')
                 }
                 if(this.messageValid.length>0){
                     this.valid = true; // existen mensajes de validación
@@ -229,7 +238,11 @@
             },
             editItem (item) {
                 this._id = item._id;
+                this.category = item.category._id;
+                this.code = item.code;
                 this.name = item.name;
+                this.stock = item.stock;
+                this.salePrice = item.salePrice;
                 this.description = item.description;
                 this.dialog = true; // muestro la pantalla modal
                 this.editedIndex = 1; // ahora paso a editar no a guardar
@@ -291,6 +304,9 @@
             clean() {
                 this._id = '';
                 this.name= '';
+                this.code= '';
+                this.stock= '';
+                this.salePrice= '';
                 this.description= '';
                 this.valid= false,
                 this.messageValid=[],
@@ -305,9 +321,17 @@
             if (this.editedIndex > -1) { // cuando mi editedIndex > -1 entro en modo de edición, put
                 let header = {"token": this.$store.state.token} // mando el token
                 let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
-                axios.put('category/update',{'_id':this._id, 'name':this.name, 'description': this.description}, configuration)
+                axios.put('article/update',{
+                '_id': this._id,
+                'category': this.category,
+                'code': this.code,
+                'name': this.name,
+                'stock': this.stock,
+                'salePrice': this.salePrice,
+                'description': this.description}
+                , configuration)
                 .then((res)=> 
-                this.getCategories(),                
+                this.getArticles(),                
                 this.clean(),
                 this.close(),
                 )
@@ -315,9 +339,16 @@
                 let header = {"token": this.$store.state.token} // mando el token
                 let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
                 // Guardar un nuevo registro los datos del registro
-                axios.post('category/add',{'name': this.name,'description': this.description}, configuration)
+                axios.post('article/add',{
+                'category': this.category,
+                'code': this.code,
+                'name': this.name,
+                'stock': this.stock,
+                'salePrice': this.salePrice,
+                'description': this.description}
+                , configuration)
                 .then((res)=> 
-                this.getCategories(),                
+                this.getArticles(),                
                 this.clean(),
                 this.close(),
                 )
