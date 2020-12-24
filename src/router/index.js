@@ -6,6 +6,7 @@ import Category from '../components/Category'
 import Article from '../components/Article'
 import User from '../components/User'
 import Login from '../components/Login'
+import Client from '../components/Client.vue'
 import store from '../store/index'
 
 Vue.use(VueRouter)
@@ -55,7 +56,15 @@ const routes = [
       grocer:true,
     }
   },
-
+  {
+    path: '/client',
+    name: 'client', 
+    component: Client,
+    meta: {
+      admin: true,
+      seller:true,
+    }
+  },
 ]
 
 const router = new VueRouter({
