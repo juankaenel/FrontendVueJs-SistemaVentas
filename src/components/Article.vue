@@ -1,7 +1,7 @@
 <template>
     <v-layout align-start>
         <v-flex>
-            <v-toolbar text color="white">
+            <v-toolbar flat color="white">
                 <v-toolbar-title>Artículos</v-toolbar-title>
                 <v-divider
                 class="mx-2"
@@ -50,7 +50,7 @@
                             <v-text-field v-model="description" label="Descripción"></v-text-field>
                           </v-flex>
                           <v-flex xs12 sm12 md12 v-show="valid" class="font-weight-bold">
-                                    <div class="red--text" v-for="v in messageValid" :key="v" v-text="v">
+                                    <div class="red--text" v-for="v in messageValid" :key="v" v-flat="v">
 
                                     </div>
                           </v-flex>
@@ -59,8 +59,8 @@
                     </v-card-text>
                     <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
-                    <v-btn color="blue darken-1" text @click="save">Guardar</v-btn>
+                    <v-btn color="blue darken-1" flat @click="close">Cancelar</v-btn>
+                    <v-btn color="blue darken-1" flat @click="save">Guardar</v-btn>
                     </v-card-actions>
                 </v-card>
                 </v-dialog>
@@ -78,13 +78,13 @@
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn @click="closeDialog()" color="light-blue darken-2" text="flat">
+                            <v-btn @click="closeDialog()" color="light-blue darken-2" flat>
                                 Cancelar
                             </v-btn>
-                            <v-btn v-if="adAction==1" color="deep-orange accent-3" @click="activate()" text="flat">
+                            <v-btn v-if="adAction==1" color="deep-orange accent-3" @click="activate()" flat>
                                 Activar
                             </v-btn>
-                            <v-btn v-if="adAction==2" color="deep-orange accent-3" @click="deactivate()" text="flat">
+                            <v-btn v-if="adAction==2" color="deep-orange accent-3" @click="deactivate()" flat>
                                 Desactivar
                             </v-btn>
                         </v-card-actions>
@@ -265,13 +265,13 @@
             activate(){
                 let header = {"token": this.$store.state.token} // mando el token
                 let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
-                axios.put('category/activate',{'_id':this.adId}, configuration)
+                axios.put('article/activate',{'_id':this.adId}, configuration)
                 .then((res)=> 
                 this.adModal =0,
                 this.adAction=0,
                 this.adName= '',
                 this.adId='',
-                this.getCategories(),                
+                this.getArticles(),                
                 ).catch(error=>{
                     console.log(error);
                 })
@@ -279,13 +279,13 @@
             deactivate(){
                 let header = {"token": this.$store.state.token} 
                 let configuration = {headers: header}; 
-                axios.put('category/deactivate',{'_id':this.adId}, configuration)
+                axios.put('article/deactivate',{'_id':this.adId}, configuration)
                 .then((res)=> 
                 this.adModal =0,
                 this.adAction=0,
                 this.adName= '',
                 this.adId='',
-                this.getCategories(),                
+                this.getArticles(),                
                 ).catch(error=>{
                     console.log(error);
                 })
