@@ -24,11 +24,8 @@
                       <v-container grid-list-md>
                         <v-layout wrap>
                           
-                          <v-flex xs12 sm6 md6>
+                          <v-flex xs12 sm12 md12>
                             <v-text-field v-model="name" label="Nombre"></v-text-field>
-                          </v-flex>
-                          <v-flex xs12 sm6 md6>
-                            <v-select v-model="role" :items="roles" label="Rol"></v-select>
                           </v-flex>
 
                           <v-flex xs12 sm6 md6>
@@ -48,9 +45,6 @@
                           <v-flex xs12 sm6 md6>
                             <v-text-field v-model="email" label="Email"></v-text-field>
                           </v-flex>
-                          <v-flex xs12 sm6 md6>
-                            <v-text-field v-model="password" type="password" label="Contraseña"></v-text-field>
-                          </v-flex>  
 
                           <v-flex xs12 sm12 md12 v-show="valid" class="font-weight-bold">
                                     <div class="red--text" v-for="v in messageValid" :key="v" v-text="v">
@@ -151,15 +145,13 @@
                 // variables
                 _id:'',
                 name:'',
-                personType:'',
-                personTypes: ['Administrador', 'Almacenero', 'Vendedor'],
+                personType:'Cliente',
                 docType: '',
                 docTypes : ['DNI','RUC', 'PASAPORTE', 'CEDULA'],
                 docNumber: '',
                 direction: '',
                 phone: '',
                 email: '',
-                password: '',
                 // validaciones
                 valid:false, // si es 1 existe un error de validación, si es cero no hay error
                 messageValid:[], // almaceno los mensajes de validaciones que el usr no cumple 
@@ -199,13 +191,8 @@
             validate () {
                 this.valid=false;
                 this.messageValid=[];
-                if(!this.role){
-                    // error de validación
-                    console.log('falta rol');
-                    this.messageValid.push('Debe seleccionar un rol')
-                }
                 if(this.name.length < 1 || this.name.length > 50){
-                    this.messageValid.push('El nombre de la usuario debe estar entre 1 y 50 caracteres')
+                    this.messageValid.push('El nombre de la persona debe estar entre 1 y 50 caracteres')
                 }
                 if(this.docNumber.length>20){  
                     this.messageValid.push('El documento no puede tener más de 20 caracteres')
@@ -216,15 +203,9 @@
                 if(this.phone.length>20){  
                     this.messageValid.push('El número de teléfono no puede tener más de 20 caracteres')
                 }
-                if(this.email.length < 1 || this.email.length > 50){
-                    this.messageValid.push('El email del usuario debe estar entre 1 y 50 caracteres')
+                if(this.email.length > 50){
+                    this.messageValid.push('El email del usuario no debe tener 50 caracteres')
                 }
-
-                if(this.password.length < 1 || this.password.length > 64){
-                    this.messageValid.push('La contraseña del usuario debe estar entre 1 y 64 caracteres')
-                }
-
-
                 if(this.messageValid.length>0){
                     this.valid = true; // existen mensajes de validación
                 }           
@@ -299,13 +280,12 @@
 
             clean() {
                 this._id = '';
-                this.role= '';
+                this.personType= '';
                 this.name= '';
                 this.docNumber= '';
                 this.direction= '';
                 this.phone= '';
                 this.email= '';
-                this.password= '';
 
                 this.valid= false,
                 this.messageValid=[],
@@ -320,16 +300,15 @@
                 return ;
             }
             if (this.editedIndex > -1) { // cuando mi editedIndex > -1 entro en modo de edición, put
-                axios.put('user/update',{
+                axios.put('person/update',{
                     '_id':this._id,
-                    'role':this.role, 
+                    'personType':this.personType,
                     'name':this.name, 
                     'docType': this.docType, 
                     'docNumber':this.docNumber, 
                     'direction': this.direction, 
                     'phone': this.phone, 
-                    'email':this.email, 
-                    'password': this.password}
+                    'email':this.email, }
                     , configuration)
                 .then((res)=> 
                 this.getClients(),                
@@ -337,7 +316,7 @@
                 this.close(),
                 )
             } else {
-                axios.post('user/add',{'role':this.role, 'name':this.name, 'docType': this.docType, 'docNumber':this.docNumber, 'direction': this.direction, 'phone': this.phone, 'email':this.email, 'password': this.password}, configuration)
+                axios.post('person/add',{'personType':this.personType, 'name':this.name, 'docType': this.docType, 'docNumber':this.docNumber, 'direction': this.direction, 'phone': this.phone, 'email':this.email}, configuration)
                 .then((res)=> 
                 this.getClients(),                
                 this.clean(),
