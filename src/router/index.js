@@ -7,6 +7,7 @@ import Article from '../components/Article'
 import User from '../components/User'
 import Login from '../components/Login'
 import Client from '../components/Client.vue'
+import Provider from '../components/Provider.vue'
 import store from '../store/index'
 
 Vue.use(VueRouter)
@@ -63,6 +64,15 @@ const routes = [
     meta: {
       admin: true,
       seller:true,
+    }
+  },
+  {
+    path: '/provider',
+    name: 'provider', 
+    component: Provider,
+    meta: {
+      admin: true,
+      grocer:true,
     }
   },
 ]

@@ -2,7 +2,7 @@
     <v-layout align-start>
         <v-flex>
             <v-toolbar text color="white">
-                <v-toolbar-title>Clientes</v-toolbar-title>
+                <v-toolbar-title>Proveedores</v-toolbar-title>
                 <v-divider
                 class="mx-2"
                 inset
@@ -116,7 +116,7 @@
 
                 </template>
                 <template v-slot:no-data>
-                <v-btn color="primary" @click="getClients">Reset</v-btn>
+                <v-btn color="primary" @click="getSuppliers">Reset</v-btn>
                 </template>
             </v-data-table>
         </v-flex>
@@ -145,7 +145,7 @@
                 // variables
                 _id:'',
                 name:'',
-                personType:'Cliente',
+                personType:'Proveedor',
                 docType: '',
                 docTypes : ['DNI','RUC', 'PASAPORTE', 'CEDULA'],
                 docNumber: '',
@@ -173,13 +173,13 @@
             }
         },
         created () {
-            this.getClients()
+            this.getSuppliers()
         },
         methods: {
-            getClients(){
+            getSuppliers(){
                 let header = {"token": this.$store.state.token} // mando el token
                 let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
-                axios.get('person/list-clients', configuration) 
+                axios.get('person/list-suppliers', configuration) 
                 .then( res => {
                     this.people = res.data; 
                 })
@@ -213,7 +213,7 @@
             },
             editItem (item) {
                 this._id = item._id;
-                /* this.personType= item.personType; */
+                this.personType= item.personType; 
                 this.name = item.name;
                 this.docType = item.docType;
                 this.docNumber = item.docNumber;
@@ -247,7 +247,7 @@
                 this.adAction=0,
                 this.adName= '',
                 this.adId='',
-                this.getClients(),                
+                this.getSuppliers(),                
                 ).catch(error=>{
                     console.log(error);
                 })
@@ -261,7 +261,7 @@
                 this.adAction=0,
                 this.adName= '',
                 this.adId='',
-                this.getClients(),                
+                this.getSuppliers(),                
                 ).catch(error=>{
                     console.log(error);
                 })
@@ -310,7 +310,7 @@
                     'email':this.email, }
                     , configuration)
                 .then((res)=> 
-                this.getClients(),                
+                this.getSuppliers(),                
                 this.clean(),
                 this.close(),
                 )
@@ -324,7 +324,7 @@
                     'phone': this.phone, 
                     'email':this.email}, configuration)
                 .then((res)=> 
-                this.getClients(),                
+                this.getSuppliers(),                
                 this.clean(),
                 this.close(),
                 )
