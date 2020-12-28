@@ -23,47 +23,15 @@
                     <v-card-text>
                       <v-container grid-list-md>
                         <v-layout wrap>
+
+
                           
-                          <v-flex xs12 sm6 md6>
-                            <v-text-field v-model="name" label="Nombre"></v-text-field>
-                          </v-flex>
-                          <v-flex xs12 sm6 md6>
-                            <v-select v-model="role" :items="roles" label="Rol"></v-select>
-                          </v-flex>
-
-                          <v-flex xs12 sm6 md6>
-                            <v-select v-model="docType" :items="docTypes" label="Tipo de documento"></v-select>
-                          </v-flex>
-                          <v-flex xs12 sm6 md6>
-                            <v-text-field v-model="docNumber" label="Número de documento"></v-text-field>
-                          </v-flex>
-
-                          <v-flex xs12 sm6 md6>
-                            <v-text-field v-model="direction" label="Dirección"></v-text-field>
-                          </v-flex>
-                          <v-flex xs12 sm6 md6>
-                            <v-text-field v-model="phone" label="Número de teléfono"></v-text-field>
-                          </v-flex>  
-
-                          <v-flex xs12 sm6 md6>
-                            <v-text-field v-model="email" label="Email"></v-text-field>
-                          </v-flex>
-                          <v-flex xs12 sm6 md6>
-                            <v-text-field v-model="password" type="password" label="Contraseña"></v-text-field>
-                          </v-flex>  
-
-                          <v-flex xs12 sm12 md12 v-show="valid" class="font-weight-bold">
-                                    <div class="red--text" v-for="v in messageValid" :key="v" v-text="v">
-
-                                    </div>
-                          </v-flex>
                         </v-layout>
                       </v-container>
                     </v-card-text>
                     <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
-                    <v-btn color="blue darken-1" text @click="save">Guardar</v-btn>
                     </v-card-actions>
                 </v-card>
                 </v-dialog>
@@ -125,6 +93,72 @@
                 <v-btn color="primary" @click="getRevenue">Reset</v-btn>
                 </template>
             </v-data-table>
+            <v-container grid-list-sm class="pa-4 white">
+                <v-layout row wrap>
+                    <v-flex xs12 sm4 md4 lg4 xl4>
+                        <v-select v-model="comprobantType"
+                        :items="vouchers"
+                        label="Tipo de comprobantes">
+                        </v-select>
+                    </v-flex>
+                    <v-flex xs12 sm4 md4 lg4 xl4>
+                        <v-text-field v-model="voucherSeries"
+                        label="Serie comprobante">
+                        </v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm4 md4 lg4 xl4>
+                        <v-text-field v-model="comprobantNumber"
+                        label="Número comprobante">
+                        </v-text-field>
+                    </v-flex>
+
+                    <v-flex xs12 sm8 md8 lg8 xl8>
+                        <v-autocomplete 
+                        :items="people"
+                        v-model="person"
+                        label="Proveedor">
+                        </v-autocomplete>
+                    </v-flex>
+                    <v-flex xs12 sm4 md4 lg4 xl4>
+                        <v-text-field type="number" v-model="tax"
+                        label="Impuesto">
+                        </v-text-field>
+                    </v-flex>
+                    
+                    <v-flex xs12 sm8 md8 lg8 xl8>
+                        <v-text-field v-model="code"
+                        label="Código">
+                        </v-text-field>
+                    </v-flex>
+
+                    <v-flex xs12 sm2 md2 lg2 xl2>
+                        <v-btn small fab dark color="teal">
+                            <v-icon dark>list</v-icon>
+                        </v-btn>
+                    </v-flex>
+                    <v-flex xs12 sm12 md12 lg12 xl12>
+                        <template>
+                            <v-data-table
+                            :headers="headerDetails"
+                            :items="details"
+                            class="elevation-1"
+                            >
+                                <template slot="items" slot-scope="props">  
+                                    <td>
+                                        <v-icon small class="mr-2">
+                                            delete
+                                        </v-icon>
+                                    </td>
+                                    <td class="text-xs-center">
+                                        {{props.item.article}}
+                                    </td>
+                                </template>
+                            </v-data-table>
+                        </template>
+                    </v-flex>
+
+                </v-layout>
+            </v-container>
         </v-flex>
     </v-layout>
 </template>
@@ -151,16 +185,14 @@
                 editedIndex: -1, // cuando está en -1 significa que no voy a estar editando, y cuando es 1 estoy editando
                 // variables
                 _id:'',
-                name:'',
-                role:'',
-                roles: ['Administrador', 'Almacenero', 'Vendedor'],
-                docType: '',
-                docTypes : ['DNI','RUC', 'PASAPORTE', 'CEDULA'],
-                docNumber: '',
-                direction: '',
-                phone: '',
-                email: '',
-                password: '',
+                person:'',
+                people:[],
+                comprobantType: '',
+                vouchers: ['BOLETA',' FACTURA', 'TICKET', 'GUIA'],
+                voucherSeries: '',
+                comprobantNumber: '',
+                tax: 21,
+
                 // validaciones
                 valid:false, // si es 1 existe un error de validación, si es cero no hay error
                 messageValid:[], // almaceno los mensajes de validaciones que el usr no cumple 
@@ -182,9 +214,28 @@
             }
         },
         created () {
-            this.getRevenue()
+            this.getRevenue();
+            this.selectPerson();
         },
         methods: {
+            selectPerson(){
+                let peopleArray = []; // guardo todas las categorias en la consulta axios
+                let peopleAct=[]; // guardamos las categorias activas
+                let header = {"token": this.$store.state.token} 
+                let configuration = {headers: header}; 
+                axios.get('person/list', configuration) 
+                .then( res => {
+                    peopleArray = res.data;
+                    peopleAct = peopleArray.filter(p=>p.state === 1) // filtro por estado activado
+                    /* console.log(categoriesAct); */
+                    peopleAct.map(p=>{ // pusheo las categorias activas para mostrar en el select
+                        this.people.push({'text':p.name,'value':p._id}); // agregamos los elementos al array de categories
+                    })  
+                })
+                .catch( error => {
+                    console.log(error);
+                })
+            },
             getRevenue(){
                 let header = {"token": this.$store.state.token} // mando el token
                 let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
