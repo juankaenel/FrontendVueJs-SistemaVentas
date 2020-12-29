@@ -9,13 +9,11 @@
                 vertical
                 ></v-divider>
                 <v-spacer></v-spacer>
-                <v-text-field class="text-xs-center" v-model="search" append-icon="search" 
+                <v-btn color="primary" dark class="mr-3 mt-1" v-if="viewNew==0" @click="showNew()" >Nuevo</v-btn>
+                <v-text-field class="text-xs-center"  v-if="viewNew==0" v-model="search" append-icon="search" 
                 label="Búsqueda" single-line hide-details></v-text-field>
                 <v-spacer></v-spacer>
                 <v-dialog v-model="dialog" max-width="500px">
-                <template v-slot:activator="{ on }">
-                    <v-btn color="primary" dark class="mb-2" v-on="on">Nuevo</v-btn>
-                </template>
                 <v-card>
                     <v-card-title>
                     <span class="headline">{{ formTitle }}</span>
@@ -67,6 +65,7 @@
                 :items="revenue"
                 :search="search"
                 class="elevation-1"
+                v-if="viewNew==0"
             >
                 <template v-slot:[`item.state`]="{ item }">
                    <td>
@@ -93,7 +92,7 @@
                 <v-btn color="primary" @click="getRevenue">Reset</v-btn>
                 </template>
             </v-data-table>
-            <v-container grid-list-sm class="pa-4 white">
+            <v-container grid-list-sm class="pa-4 white" v-if="viewNew">
                 <v-layout row wrap>
                     <v-flex xs12 sm4 md4 lg4 xl4>
                         <v-select v-model="comprobantType"
@@ -143,18 +142,28 @@
                             :items="details"
                             class="elevation-1"
                             >
-                                <template slot="items" slot-scope="props">  
-                                    <td>
-                                        <v-icon small class="mr-2">
+                                <template v-slot:[`item.delete`]>
+                                      <v-icon small class="mr-2">
                                             delete
-                                        </v-icon>
-                                    </td>
-                                    <td class="text-xs-center">
-                                        {{props.item.article}}
-                                    </td>
+                                       </v-icon>
+                                </template>
+                                <template v-slot:[`item.subtotal`]="{ item }">
+                                      ${{item.price * item.cantity}}
+                                </template>
+                                <template v-slot:no-data>
+                                  <h3>No hay artículos agregados al detalle.</h3>
                                 </template>
                             </v-data-table>
                         </template>
+                    </v-flex>
+                    <v-flex xs12 sm12 md12 lg12 xl12>
+                        <div class="red--text" v-for="v in messageValid" :key="v" v-text="v">
+
+                        </div>
+                    </v-flex>
+                    <v-flex xs12 sm12 md12 lg12 xl12 class="mt-2">
+                        <v-btn color="blue darken-1" text @click.native="hideNew()">Cancelar</v-btn>
+                        <v-btn color="success" @click.native="save()">Guardar</v-btn>
                     </v-flex>
 
                 </v-layout>
@@ -192,10 +201,24 @@
                 voucherSeries: '',
                 comprobantNumber: '',
                 tax: 21,
+                //details
+                code:'',
+                headerDetails:[
+                    {text: 'Borrar', value: 'delete', sortable:false},                    
+                    {text: 'Artículo', value: 'article', sortable:false},                    
+                    {text: 'Cantidad', value: 'cantity', sortable:false},                    
+                    {text: 'Precio', value: 'price', sortable:false},                    
+                    {text: 'Sub Total', value: 'subtotal', sortable:false},                    
+                ],
+                details:[
+                    {_id:'1000', article:'Artículo1', cantity:'2', price:'1234'},
+                    {_id:'2000', article:'Artículo2', cantity:'3', price:'1235'}
+                ],
 
                 // validaciones
                 valid:false, // si es 1 existe un error de validación, si es cero no hay error
                 messageValid:[], // almaceno los mensajes de validaciones que el usr no cumple 
+                viewNew:'',
                 // activar y desactivar registros
                 adModal:0, // la utilizo para activar o desactivar el modal
                 adAction:0, // 1 activar, 2 desactivar
@@ -219,8 +242,8 @@
         },
         methods: {
             selectPerson(){
-                let peopleArray = []; // guardo todas las categorias en la consulta axios
-                let peopleAct=[]; // guardamos las categorias activas
+                let peopleArray = []; // guardo todas las personas en la consulta axios
+                let peopleAct=[]; // guardamos las personas activas
                 let header = {"token": this.$store.state.token} 
                 let configuration = {headers: header}; 
                 axios.get('person/list', configuration) 
@@ -229,7 +252,7 @@
                     peopleAct = peopleArray.filter(p=>p.state === 1) // filtro por estado activado
                     /* console.log(categoriesAct); */
                     peopleAct.map(p=>{ // pusheo las categorias activas para mostrar en el select
-                        this.people.push({'text':p.name,'value':p._id}); // agregamos los elementos al array de categories
+                        this.people.push({'text':p.name,'value':p._id}); // agregamos los elementos al array de people
                     })  
                 })
                 .catch( error => {
@@ -363,6 +386,13 @@
                 this.messageValid=[],
                 this.editedIndex= -1 // reinicio ya el editedindex ya que pude realizar la edición
             },
+            showNew(){
+                this.viewNew=1;
+            },
+            hideNew(){
+                this.viewNew=0;
+            },
+
             // editar y guardar
             save () {
              /*    console.log(validate()); */
