@@ -126,7 +126,7 @@
                     
                     <v-flex xs12 sm8 md8 lg8 xl8>
                         <v-text-field v-model="code"
-                        label="Código">
+                        label="Código" @keyup.enter="searchCode()">
                         </v-text-field>
                     </v-flex>
 
@@ -135,6 +135,11 @@
                             <v-icon dark>list</v-icon>
                         </v-btn>
                     </v-flex>
+
+                    <v-flex xs12 sm2 lg2 xl2 v-show="articleError">
+                        <div class="red--text" v-text=articleError></div>
+                    </v-flex>
+
                     <v-flex xs12 sm12 md12 lg12 xl12>
                         <template>
                             <v-data-table
@@ -219,6 +224,7 @@
                 valid:false, // si es 1 existe un error de validación, si es cero no hay error
                 messageValid:[], // almaceno los mensajes de validaciones que el usr no cumple 
                 viewNew:'',
+                articleError:null,
                 // activar y desactivar registros
                 adModal:0, // la utilizo para activar o desactivar el modal
                 adAction:0, // 1 activar, 2 desactivar
@@ -257,6 +263,17 @@
                 })
                 .catch( error => {
                     console.log(error);
+                })
+            },
+            searchCode(){
+                let header = {"token": this.$store.state.token} // mando el token
+                let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
+                axios.get('article/queryCode?code='+this.code, configuration) 
+                .then( res => {
+                    console.log(res.data);
+                })
+                .catch( error => {
+                    this.articleError = 'No existe el artículo!'
                 })
             },
             getRevenue(){
