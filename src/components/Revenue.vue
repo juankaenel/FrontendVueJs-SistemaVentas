@@ -215,11 +215,7 @@
                     {text: 'Precio', value: 'price', sortable:false},                    
                     {text: 'Sub Total', value: 'subtotal', sortable:false},                    
                 ],
-                details:[
-                    {_id:'1000', article:'Artículo1', cantity:'2', price:'1234'},
-                    {_id:'2000', article:'Artículo2', cantity:'3', price:'1235'}
-                ],
-
+                details:[],
                 // validaciones
                 valid:false, // si es 1 existe un error de validación, si es cero no hay error
                 messageValid:[], // almaceno los mensajes de validaciones que el usr no cumple 
@@ -270,11 +266,37 @@
                 let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
                 axios.get('article/queryCode?code='+this.code, configuration) 
                 .then( res => {
-                    console.log(res.data);
+                    this.addDetail(res.data); // le mando los datos de la consulta al método addDetail
                 })
                 .catch( error => {
                     this.articleError = 'No existe el artículo!'
                 })
+            },
+            addDetail(data){
+                this.articleError=null
+                if(this.checkDetail(data._id)){
+                    this.articleError = 'El artículo ya ha sido agregado!'
+                }
+                else{
+                    this.details.push(
+                        {
+                        _id:data._id,
+                        article: data.name,
+                        cantity:1,
+                        price: data.price,
+                        }
+                )
+                }
+                
+            },
+            checkDetail(id){ // revisa si se encuentra o no un articulo en el detalle
+                let sw=false;
+                for(let i=0; i < this.details.length; i++){ //recorro el array details
+                    if(this.details[i]._id==id){
+                        sw=true; 
+                    }
+                }
+                return sw;
             },
             getRevenue(){
                 let header = {"token": this.$store.state.token} // mando el token
