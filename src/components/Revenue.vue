@@ -148,13 +148,18 @@
                             class="elevation-1"
                             >
                                 <template v-slot:[`item.delete`]>
-                                      <v-icon small class="mr-2">
+                                      <v-icon small class="mr-2"
+                                      @click="deleteDetail(details,item)">
                                             delete
                                        </v-icon>
                                 </template>
+                        
+                                <!-- <template v-slot:[`item.price`]="{ item }">
+                                      $ {{item.price}}
+                                </template> 
                                 <template v-slot:[`item.subtotal`]="{ item }">
                                       ${{item.price * item.cantity}}
-                                </template>
+                                </template>-->
                                 <template v-slot:no-data>
                                   <h3>No hay artículos agregados al detalle.</h3>
                                 </template>
@@ -297,6 +302,12 @@
                     }
                 }
                 return sw;
+            },
+            deleteDetail(array, item){
+                let i = array.indexOf(item); // capturo el indice 
+                if(i!= -1){
+                    array.splice(i,1); // elimino ese indice
+                }
             },
             getRevenue(){
                 let header = {"token": this.$store.state.token} // mando el token
