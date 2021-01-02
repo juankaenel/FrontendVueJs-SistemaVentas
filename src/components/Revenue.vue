@@ -153,13 +153,15 @@
                                             delete
                                        </v-icon>
                                 </template>
-                        
-                                <!-- <template v-slot:[`item.price`]="{ item }">
-                                      $ {{item.price}}
-                                </template> 
+                    
+                                <template v-slot:[`item.salePrice`]="{ item }">
+                                    {{item.salePrice}}
+                                </template>
+                    
                                 <template v-slot:[`item.subtotal`]="{ item }">
-                                      ${{item.price * item.cantity}}
-                                </template>-->
+                                    {{item.salePrice * item.cantity}}
+                                </template>
+                    
                                 <template v-slot:no-data>
                                   <h3>No hay artículos agregados al detalle.</h3>
                                 </template>
@@ -217,7 +219,7 @@
                     {text: 'Borrar', value: 'delete', sortable:false},                    
                     {text: 'Artículo', value: 'article', sortable:false},                    
                     {text: 'Cantidad', value: 'cantity', sortable:false},                    
-                    {text: 'Precio', value: 'price', sortable:false},                    
+                    {text: 'Precio', value: 'salePrice', sortable:false},                    
                     {text: 'Sub Total', value: 'subtotal', sortable:false},                    
                 ],
                 details:[],
@@ -288,7 +290,7 @@
                         _id:data._id,
                         article: data.name,
                         cantity:1,
-                        price: data.price,
+                        salePrice: data.salePrice,
                         }
                 )
                 }
