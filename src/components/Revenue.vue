@@ -154,8 +154,12 @@
                                        </v-icon>
                                 </template>
                     
+                                <template v-slot:[`item.cantity`]="{ item }">
+                                    <v-text-field v-model="item.cantity" type="number"></v-text-field>
+                                </template>
+
                                 <template v-slot:[`item.salePrice`]="{ item }">
-                                    {{item.salePrice}}
+                                    <v-text-field v-model="item.salePrice" type="number"></v-text-field>
                                 </template>
                     
                                 <template v-slot:[`item.subtotal`]="{ item }">
