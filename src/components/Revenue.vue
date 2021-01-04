@@ -170,6 +170,15 @@
                                   <h3>No hay artículos agregados al detalle.</h3>
                                 </template>
                             </v-data-table>
+                            <v-flex class="text-xs-right">
+                                <strong>Total Parcial: </strong>${{partialTotal=(total-taxTotal).toFixed(2)}}
+                            </v-flex>
+                            <v-flex class="text-xs-right">
+                                <strong>Total Impuesto: </strong>${{taxTotal=((total*tax)/(1+tax)).toFixed(2)}}
+                            </v-flex>
+                            <v-flex class="text-xs-right">
+                                <strong>Total Neto: </strong>${{total=calculateTotal}}
+                            </v-flex>
                         </template>
                     </v-flex>
                     <v-flex xs12 sm12 md12 lg12 xl12>
@@ -216,7 +225,7 @@
                 vouchers: ['BOLETA',' FACTURA', 'TICKET', 'GUIA'],
                 voucherSeries: '',
                 comprobantNumber: '',
-                tax: 21,
+                tax: 0.21,
                 //details
                 code:'',
                 headerDetails:[
@@ -227,11 +236,14 @@
                     {text: 'Sub Total', value: 'subtotal', sortable:false},                    
                 ],
                 details:[],
+                viewNew:'',
+                articleError:null,
+                total:0,
+                partialTotal:0,
+                taxTotal:0,
                 // validaciones
                 valid:false, // si es 1 existe un error de validación, si es cero no hay error
                 messageValid:[], // almaceno los mensajes de validaciones que el usr no cumple 
-                viewNew:'',
-                articleError:null,
                 // activar y desactivar registros
                 adModal:0, // la utilizo para activar o desactivar el modal
                 adAction:0, // 1 activar, 2 desactivar
@@ -242,6 +254,13 @@
         computed: {
             formTitle () {
             return this.editedIndex === -1 ? 'Nuevo Registro' : 'Editar Registro'
+            },
+            calculateTotal(){
+                let result=0.0;
+                for(let i=0; i<this.details.length; i++){
+                    result= result+(this.details[i].cantity * this.details[i].salePrice);
+                }
+            return result;
             }
         },
         watch: {
