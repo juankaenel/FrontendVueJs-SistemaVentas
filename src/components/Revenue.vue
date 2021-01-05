@@ -13,19 +13,52 @@
                 <v-text-field class="text-xs-center"  v-if="viewNew==0" v-model="search" append-icon="search" 
                 label="Búsqueda" single-line hide-details></v-text-field>
                 <v-spacer></v-spacer>
-                <v-dialog v-model="dialog" max-width="500px">
+                <v-dialog v-model="dialog" max-width="1000px">
                 <v-card>
                     <v-card-title>
-                    <span class="headline">{{ formTitle }}</span>
+                        <span class="headline">Seleccione un artículo</span>
                     </v-card-title>
                     <v-card-text>
-                      <v-container grid-list-md>
+                    <v-container grid-list-md>
                         <v-layout wrap>
+                            <v-flex xs12 sm12 md12 lg12 xl12>
+                                <template>
+                                    <v-data-table
+                                        :headers="articlesHeaders"
+                                        :items="articles"
+                                        class="elevation-1"
+                                    >
+                                        <template v-slot:[`item.state`]="{ item }">
+                                        <td>
+                                            <div v-if="item.state">
+                                                <span class="blue--text">Activo</span>
+                                            </div>
+                                            <div v-else>
+                                                <span class="red--text">Inactivo</span>
+                                            </div>
+                                        </td>       
+                                        </template>
+                                        <template v-slot:[`item.options`]="{ item }">
+                                        <v-icon small class="mr-2" @click="editItem(item)">edit</v-icon>
 
-
-                          
+                                        <template v-if="item.state"> <!--En caso de que el registro esté activo y lo deseo desactivar le envio 2 como parametro-->
+                                                <v-icon small @click="enableDisableShow(2,item)">block</v-icon>
+                                        </template>
+                                        <template v-else>
+                                                <v-icon small @click="enableDisableShow(1,item)">check</v-icon> <!--Si le envio 1 quiero activar el registro-->
+                                        </template>
+                                        </template>
+                                        <template v-slot:[`item.category`]="{ item }">
+                                            {{item.category.name}}
+                                        </template>
+                                        <template v-slot:no-data>
+                                        <v-btn color="primary" @click="getArticles">Reset</v-btn>
+                                        </template>
+                                    </v-data-table>
+                                </template>
+                            </v-flex>
                         </v-layout>
-                      </v-container>
+                    </v-container>
                     </v-card-text>
                     <v-card-actions>
                     <v-spacer></v-spacer>
@@ -241,6 +274,18 @@
                 total:0,
                 partialTotal:0,
                 taxTotal:0,
+                articles:[],
+                text:'',
+                 articlesHeaders: [ // cabecera de la ventana modal
+                { text: 'Código', value: 'code', sortable: false },
+                { text: 'Nombre', value: 'name', sortable: true },
+                { text: 'Categoría', value: 'category.name', sortable: true },
+                { text: 'Stock', value: 'stock', sortable: false },
+                { text: 'Precio de venta', value: 'salePrice', sortable: false },
+                { text: 'Descripción', value: 'description', sortable: false },
+                { text: 'Estado', value: 'state', sortable: false },
+                { text: 'Seleccionar', value: 'select', sortable: false },
+                ],
                 // validaciones
                 valid:false, // si es 1 existe un error de validación, si es cero no hay error
                 messageValid:[], // almaceno los mensajes de validaciones que el usr no cumple 
@@ -345,7 +390,17 @@
                     console.log(error);
                 })
             },
-            
+            getArticles(){
+                let header = {"token": this.$store.state.token} 
+                let configuration = {headers: header}; 
+                axios.get('article/list?value='+this.text, configuration) 
+                .then( res => {
+                    this.articles = res.data; 
+                })
+                .catch( error => {
+                    console.log(error);
+                })
+            },
             validate () {
                 this.valid=false;
                 this.messageValid=[];
