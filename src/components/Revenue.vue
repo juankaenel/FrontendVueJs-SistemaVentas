@@ -23,6 +23,7 @@
                         <v-layout wrap>
                             <v-flex xs12 sm12 md12 lg12 xl12>
                                 <template>
+                                    <v-text-field v-model="text" @keyup="getArticles" class="text-xs-center" append-icon="search" label="Búsqueda"></v-text-field>
                                     <v-data-table
                                         :headers="articlesHeaders"
                                         :items="articles"
@@ -38,22 +39,13 @@
                                             </div>
                                         </td>       
                                         </template>
-                                        <template v-slot:[`item.options`]="{ item }">
-                                        <v-icon small class="mr-2" @click="editItem(item)">edit</v-icon>
-
-                                        <template v-if="item.state"> <!--En caso de que el registro esté activo y lo deseo desactivar le envio 2 como parametro-->
-                                                <v-icon small @click="enableDisableShow(2,item)">block</v-icon>
-                                        </template>
-                                        <template v-else>
-                                                <v-icon small @click="enableDisableShow(1,item)">check</v-icon> <!--Si le envio 1 quiero activar el registro-->
-                                        </template>
+                                        <template v-slot:[`item.select`]="{ item }">
+                                        <v-icon small class="mr-2" @click="addDetail(item)">add</v-icon>
                                         </template>
                                         <template v-slot:[`item.category`]="{ item }">
                                             {{item.category.name}}
                                         </template>
-                                        <template v-slot:no-data>
-                                        <v-btn color="primary" @click="getArticles">Reset</v-btn>
-                                        </template>
+                                        
                                     </v-data-table>
                                 </template>
                             </v-flex>
@@ -164,7 +156,7 @@
                     </v-flex>
 
                     <v-flex xs12 sm2 md2 lg2 xl2>
-                        <v-btn small fab dark color="teal">
+                        <v-btn small fab dark color="teal" @click="viewModalArticles">
                             <v-icon dark>list</v-icon>
                         </v-btn>
                     </v-flex>
@@ -180,7 +172,7 @@
                             :items="details"
                             class="elevation-1"
                             >
-                                <template v-slot:[`item.delete`]>
+                                <template v-slot:[`item.delete`]={item}>
                                       <v-icon small class="mr-2"
                                       @click="deleteDetail(details,item)">
                                             delete
@@ -400,6 +392,9 @@
                 .catch( error => {
                     console.log(error);
                 })
+            },
+            viewModalArticles(){
+                this.dialog=1;
             },
             validate () {
                 this.valid=false;
