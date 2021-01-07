@@ -54,7 +54,8 @@
                     </v-card-text>
                     <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
+                    <v-btn color="blue darken-1" text @click="close">Salir</v-btn>
+                    
                     </v-card-actions>
                 </v-card>
                 </v-dialog>
@@ -179,8 +180,8 @@
                                        </v-icon>
                                 </template>
                     
-                                <template v-slot:[`item.cantity`]="{ item }">
-                                    <v-text-field v-model="item.cantity" type="number"></v-text-field>
+                                <template v-slot:[`item.quantity`]="{ item }">
+                                    <v-text-field v-model="item.quantity" type="number"></v-text-field>
                                 </template>
 
                                 <template v-slot:[`item.salePrice`]="{ item }">
@@ -188,7 +189,7 @@
                                 </template>
                     
                                 <template v-slot:[`item.subtotal`]="{ item }">
-                                    {{item.salePrice * item.cantity}}
+                                    {{item.salePrice * item.quantity}}
                                 </template>
                     
                                 <template v-slot:no-data>
@@ -213,7 +214,7 @@
                     </v-flex>
                     <v-flex xs12 sm12 md12 lg12 xl12 class="mt-2">
                         <v-btn color="blue darken-1" text @click.native="hideNew()">Cancelar</v-btn>
-                        <v-btn color="success" @click.native="save()">Guardar</v-btn>
+                        <v-btn color="success" v-if="viewDetail==0" @click.native="save()">Guardar</v-btn>
                     </v-flex>
 
                 </v-layout>
@@ -256,7 +257,7 @@
                 headerDetails:[
                     {text: 'Borrar', value: 'delete', sortable:false},                    
                     {text: 'Artículo', value: 'article', sortable:false},                    
-                    {text: 'Cantidad', value: 'cantity', sortable:false},                    
+                    {text: 'Cantidad', value: 'quantity', sortable:false},                    
                     {text: 'Precio', value: 'salePrice', sortable:false},                    
                     {text: 'Sub Total', value: 'subtotal', sortable:false},                    
                 ],
@@ -279,6 +280,7 @@
                 { text: 'Seleccionar', value: 'select', sortable: false },
                 ],
                 // validaciones
+                viewDetail:0,
                 valid:false, // si es 1 existe un error de validación, si es cero no hay error
                 messageValid:[], // almaceno los mensajes de validaciones que el usr no cumple 
                 // activar y desactivar registros
@@ -295,7 +297,7 @@
             calculateTotal(){
                 let result=0.0;
                 for(let i=0; i<this.details.length; i++){
-                    result= result+(this.details[i].cantity * this.details[i].salePrice);
+                    result= result+(this.details[i].quantity * this.details[i].salePrice);
                 }
             return result;
             }
@@ -349,7 +351,7 @@
                         {
                         _id:data._id,
                         article: data.name,
-                        cantity:1,
+                        quantity:1,
                         salePrice: data.salePrice,
                         }
                 )
@@ -399,32 +401,22 @@
             validate () {
                 this.valid=false;
                 this.messageValid=[];
-                if(!this.role){
+                if(!this.person){
                     // error de validación
-                    console.log('falta rol');
-                    this.messageValid.push('Debe seleccionar un rol')
+                    this.messageValid.push('Debe seleccionar un proveedor')
                 }
-                if(this.name.length < 1 || this.name.length > 50){
-                    this.messageValid.push('El nombre de la usuario debe estar entre 1 y 50 caracteres')
+                if(!this.comprobantType){
+                    this.messageValid.push('Seleccione un tipo de comprobante')
                 }
-                if(this.docNumber.length>20){  
-                    this.messageValid.push('El documento no puede tener más de 20 caracteres')
+                if(!this.comprobantNumber){  
+                    this.messageValid.push('Ingrese el número de comprobante')
                 }
-                if(this.direction.length>70){  
-                    this.messageValid.push('La dirección no puede tener más de 70 caracteres')
+                if(!this.tax || this.tax < 0 || this.tax>1){  
+                    this.messageValid.push('Ingrese un impuesto válido')
                 }
-                if(this.phone.length>20){  
-                    this.messageValid.push('El número de teléfono no puede tener más de 20 caracteres')
+                if(this.details.length<=0){  
+                    this.messageValid.push('Ingrese al menos un artículo al detalle')
                 }
-                if(this.email.length < 1 || this.email.length > 50){
-                    this.messageValid.push('El email del usuario debe estar entre 1 y 50 caracteres')
-                }
-
-                if(this.password.length < 1 || this.password.length > 64){
-                    this.messageValid.push('La contraseña del usuario debe estar entre 1 y 64 caracteres')
-                }
-
-
                 if(this.messageValid.length>0){
                     this.valid = true; // existen mensajes de validación
                 }           
@@ -494,23 +486,27 @@
             close () {
                 // hace referencia al modal que se ejecuta cuando queremos agregar un nuevo elemento a la tabla
                 this.dialog = false // se oculta el modal
-                this.clean();
+                
             },
 
             clean() {
                 this._id = '';
-                this.role= '';
-                this.name= '';
-                this.docNumber= '';
-                this.direction= '';
-                this.phone= '';
-                this.email= '';
-                this.password= '';
+                this.person= '';
+                this.comprobantType= '';
+                this.voucherSeries= '';
+                this.comprobantNumber= '';
+                this.tax= 0.21;
+                this.code= '';
+                this.total= 0;
+                this.partialTotal= 0;
+                this.taxTotal= 0;
+                this.details= [];
+                this.viewNew= 0;
 
-                this.valid= false,
-                this.messageValid=[],
-                this.editedIndex= -1 // reinicio ya el editedindex ya que pude realizar la edición
-            },
+                this.valid= false;
+                this.messageValid=[];
+                this.viewDetail=0;
+                },
             showNew(){
                 this.viewNew=1;
             },
@@ -526,25 +522,17 @@
             if (this.validate()){ // si returna true cancelo todo porque hay errores
                 return ;
             }
-            if (this.editedIndex > -1) { // cuando mi editedIndex > -1 entro en modo de edición, put
-                axios.put('user/update',{
-                    '_id':this._id,
-                    'role':this.role, 
-                    'name':this.name, 
-                    'docType': this.docType, 
-                    'docNumber':this.docNumber, 
-                    'direction': this.direction, 
-                    'phone': this.phone, 
-                    'email':this.email, 
-                    'password': this.password}
-                    , configuration)
-                .then((res)=> 
-                this.getRevenue(),                
-                this.clean(),
-                this.close(),
-                )
-            } else {
-                axios.post('user/add',{'role':this.role, 'name':this.name, 'docType': this.docType, 'docNumber':this.docNumber, 'direction': this.direction, 'phone': this.phone, 'email':this.email, 'password': this.password}, configuration)
+                axios.post('revenue/add',
+                {
+                'person':this.person, 
+                'user':this.$store.state.user._id,
+                'comprobantType': this.comprobantType, 
+                'voucherSeries': this.voucherSeries, 
+                'comprobantNumber':this.comprobantNumber, 
+                'tax': this.tax, 
+                'total':this.total,
+                'details': this.details
+                }, configuration)
                 .then((res)=> 
                 this.getRevenue(),                
                 this.clean(),
@@ -552,7 +540,6 @@
                 )
                 .catch(error=>{console.log(error);
                 })
-            }
             this.close() // cerrar el modal
             }
         }
