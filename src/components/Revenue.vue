@@ -93,6 +93,8 @@
                 class="elevation-1"
                 v-if="viewNew==0"
             >
+               
+
                 <template v-slot:[`item.state`]="{ item }">
                    <td>
                     <div v-if="item.state">
@@ -105,7 +107,9 @@
                 </template>
                 <template v-slot:[`item.options`]="{ item }">
                    <!-- <v-icon small class="mr-2" @click="editItem(item)">edit</v-icon> -->
-
+                    <v-icon small class="mr-2" @click="viewRevenue(item)">
+                    tab
+                    </v-icon>
                    <template v-if="item.state"> <!--En caso de que el registro esté activo y lo deseo desactivar le envio 2 como parametro-->
                         <v-icon small @click="enableDisableShow(2,item)">block</v-icon>
                    </template>
@@ -397,6 +401,28 @@
             },
             viewModalArticles(){
                 this.dialog=1;
+            }, 
+            geDetails(id){ // obtiene los detalles de un ingreso específico
+                let header = {"token": this.$store.state.token} 
+                let configuration = {headers: header}; 
+                axios.get('revenue/query?_id='+id, configuration) 
+                .then( res => {
+                    this.details = res.data.details;
+                })
+                .catch( error => {
+                    console.log(error);
+                })
+            },
+            viewRevenue(item){ // ver ingreso
+                this.clean();
+                this.comprobantType = item.comprobantType;
+                this.voucherSeries = item.voucherSeries;
+                this.comprobantNumber = item.comprobantNumber;
+                this.person = item.person._id;
+                this.tax = item.tax;
+                this.geDetails(item._id);
+                this.viewNew = 1; // deseo mostrar el formulario
+                this.viewDetail = 1;
             },
             validate () {
                 this.valid=false;
@@ -512,6 +538,7 @@
             },
             hideNew(){
                 this.viewNew=0;
+                this.clean();
             },
 
             // editar y guardar
