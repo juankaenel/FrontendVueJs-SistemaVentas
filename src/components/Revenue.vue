@@ -464,7 +464,7 @@
 
             enableDisableShow(action, item) {
                 this.adModal = 1;
-                this.adName = item.name;
+                this.adName = item.comprobantNumber;
                 this.adId = item._id;
                 if (action == 1){
                     // activar
@@ -479,7 +479,7 @@
             activate(){
                 let header = {"token": this.$store.state.token} // mando el token
                 let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
-                axios.put('user/activate',{'_id':this.adId}, configuration)
+                axios.put('revenue/activate',{'_id':this.adId}, configuration)
                 .then((res)=> 
                 this.adModal =0,
                 this.adAction=0,
@@ -493,7 +493,7 @@
             deactivate(){
                 let header = {"token": this.$store.state.token} 
                 let configuration = {headers: header}; 
-                axios.put('user/deactivate',{'_id':this.adId}, configuration)
+                axios.put('revenue/deactivate',{'_id':this.adId}, configuration)
                 .then((res)=> 
                 this.adModal =0,
                 this.adAction=0,
