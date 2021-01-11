@@ -119,7 +119,7 @@
 
                 </template>
                 <template v-slot:no-data>
-                <v-btn color="primary" @click="getRevenue">Reset</v-btn>
+                <v-btn color="primary" @click="getSale">Reset</v-btn>
                 </template>
             </v-data-table>
             <v-container grid-list-sm class="pa-4 white" v-if="viewNew">
@@ -145,7 +145,7 @@
                         <v-autocomplete 
                         :items="people"
                         v-model="person"
-                        label="Proveedor">
+                        label="Cliente">
                         </v-autocomplete>
                     </v-flex>
                     <v-flex xs12 sm4 md4 lg4 xl4>
@@ -192,10 +192,14 @@
                                     <v-text-field v-model="item.salePrice" type="number"></v-text-field>
                                 </template>
                     
-                                <template v-slot:[`item.subtotal`]="{ item }">
-                                    {{item.salePrice * item.quantity}}
+                                 <template v-slot:[`item.discount`]="{ item }">
+                                     <v-text-field v-model="item.discount" type="number"></v-text-field>
                                 </template>
-                    
+
+                                <template v-slot:[`item.subtotal`]="{ item }">
+                                    {{(item.salePrice * item.quantity) - item.discount}}
+                                </template>
+                                
                                 <template v-slot:no-data>
                                   <h3>No hay artículos agregados al detalle.</h3>
                                 </template>
@@ -207,7 +211,7 @@
                                 <strong>Total Impuesto: </strong>${{taxTotal=((total*tax)/(1+tax)).toFixed(2)}}
                             </v-flex>
                             <v-flex class="text-xs-right">
-                                <strong>Total Neto: </strong>${{total=calculateTotal}}
+                                <strong>Total Neto: </strong>${{total=calculateTotal}} <!--el total lo calculamos con la funcion computada calculateTotal-->
                             </v-flex>
                         </template>
                     </v-flex>
@@ -263,6 +267,7 @@
                     {text: 'Artículo', value: 'article', sortable:false},                    
                     {text: 'Cantidad', value: 'quantity', sortable:false},                    
                     {text: 'Precio', value: 'salePrice', sortable:false},                    
+                    {text: 'Descuento', value: 'discount', sortable:false},                    
                     {text: 'Sub Total', value: 'subtotal', sortable:false},                    
                 ],
                 details:[],
@@ -301,7 +306,7 @@
             calculateTotal(){
                 let result=0.0;
                 for(let i=0; i<this.details.length; i++){
-                    result= result+(this.details[i].quantity * this.details[i].salePrice);
+                    result= result+((this.details[i].quantity * this.details[i].salePrice) - this.details[i].discount);
                 }
             return result;
             }
@@ -312,7 +317,7 @@
             }
         },
         created () {
-            this.getRevenue();
+            this.getSale();
             this.selectPerson();
         },
         methods: {
@@ -321,7 +326,7 @@
                 let peopleAct=[]; // guardamos las personas activas
                 let header = {"token": this.$store.state.token} 
                 let configuration = {headers: header}; 
-                axios.get('person/list', configuration) 
+                axios.get('person/list-clients', configuration) 
                 .then( res => {
                     peopleArray = res.data;
                     peopleAct = peopleArray.filter(p=>p.state === 1) // filtro por estado activado
@@ -356,6 +361,7 @@
                         _id:data._id,
                         article: data.name,
                         quantity:1,
+                        discount:0,
                         salePrice: data.salePrice,
                         }
                 )
@@ -377,7 +383,7 @@
                     array.splice(i,1); // elimino ese indice
                 }
             },
-            getRevenue(){
+            getSale(){
                 let header = {"token": this.$store.state.token} // mando el token
                 let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
                 axios.get('sale/list', configuration) 
@@ -402,7 +408,7 @@
             viewModalArticles(){
                 this.dialog=1;
             }, 
-            geDetails(id){ // obtiene los detalles de un ingreso específico
+            getDetails(id){ // obtiene los detalles de un ingreso específico
                 let header = {"token": this.$store.state.token} 
                 let configuration = {headers: header}; 
                 axios.get('revenue/query?_id='+id, configuration) 
@@ -420,7 +426,7 @@
                 this.comprobantNumber = item.comprobantNumber;
                 this.person = item.person._id;
                 this.tax = item.tax;
-                this.geDetails(item._id);
+                this.getDetails(item._id);
                 this.viewNew = 1; // deseo mostrar el formulario
                 this.viewDetail = 1;
             },
@@ -485,7 +491,7 @@
                 this.adAction=0,
                 this.adName= '',
                 this.adId='',
-                this.getRevenue(),                
+                this.getSale(),                
                 ).catch(error=>{
                     console.log(error);
                 })
@@ -499,7 +505,7 @@
                 this.adAction=0,
                 this.adName= '',
                 this.adId='',
-                this.getRevenue(),                
+                this.getSale(),                
                 ).catch(error=>{
                     console.log(error);
                 })
@@ -549,7 +555,7 @@
             if (this.validate()){ // si returna true cancelo todo porque hay errores
                 return ;
             }
-                axios.post('revenue/add',
+                axios.post('sale/add',
                 {
                 'person':this.person, 
                 'user':this.$store.state.user._id,
@@ -561,7 +567,7 @@
                 'details': this.details
                 }, configuration)
                 .then((res)=> 
-                this.getRevenue(),                
+                this.getSale(),                
                 this.clean(),
                 this.close(),
                 )

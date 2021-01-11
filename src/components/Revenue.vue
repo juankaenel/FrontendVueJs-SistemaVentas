@@ -321,7 +321,7 @@
                 let peopleAct=[]; // guardamos las personas activas
                 let header = {"token": this.$store.state.token} 
                 let configuration = {headers: header}; 
-                axios.get('person/list', configuration) 
+                axios.get('person/list-suppliers', configuration) 
                 .then( res => {
                     peopleArray = res.data;
                     peopleAct = peopleArray.filter(p=>p.state === 1) // filtro por estado activado
