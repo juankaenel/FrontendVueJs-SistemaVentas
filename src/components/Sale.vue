@@ -435,7 +435,7 @@
                 this.messageValid=[];
                 if(!this.person){
                     // error de validación
-                    this.messageValid.push('Debe seleccionar un proveedor')
+                    this.messageValid.push('Debe seleccionar un cliente')
                 }
                 if(!this.comprobantType){
                     this.messageValid.push('Seleccione un tipo de comprobante')
