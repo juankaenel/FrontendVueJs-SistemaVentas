@@ -411,7 +411,7 @@
             getDetails(id){ // obtiene los detalles de un ingreso específico
                 let header = {"token": this.$store.state.token} 
                 let configuration = {headers: header}; 
-                axios.get('revenue/query?_id='+id, configuration) 
+                axios.get('sale/query?_id='+id, configuration) 
                 .then( res => {
                     this.details = res.data.details;
                 })
