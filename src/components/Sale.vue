@@ -485,7 +485,7 @@
             activate(){
                 let header = {"token": this.$store.state.token} // mando el token
                 let configuration = {headers: header}; // mando el token por el headers que defini que asi lo recibiría en el backend
-                axios.put('revenue/activate',{'_id':this.adId}, configuration)
+                axios.put('sale/activate',{'_id':this.adId}, configuration)
                 .then((res)=> 
                 this.adModal =0,
                 this.adAction=0,
@@ -499,7 +499,7 @@
             deactivate(){
                 let header = {"token": this.$store.state.token} 
                 let configuration = {headers: header}; 
-                axios.put('revenue/deactivate',{'_id':this.adId}, configuration)
+                axios.put('sale/deactivate',{'_id':this.adId}, configuration)
                 .then((res)=> 
                 this.adModal =0,
                 this.adAction=0,
