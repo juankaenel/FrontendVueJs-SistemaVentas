@@ -2,7 +2,10 @@
     <v-layout align-start>
         <v-flex>
             <v-toolbar flat color="white">
-                <v-toolbar-title>Artículos</v-toolbar-title>
+                <v-btn @click="createPDF()">
+                    <v-icon>print</v-icon>
+                </v-btn>
+                <v-toolbar-title class="ml-2">Artículos</v-toolbar-title>
                 <v-divider
                 class="mx-2"
                 inset
@@ -129,6 +132,8 @@
 </template>
 <script>
     import axios from 'axios';
+    import jsPDF from 'jspdf';
+    import autoTable from 'jspdf-autotable'
     export default {
         data(){
             return{
@@ -356,6 +361,39 @@
                 })
             }
             this.close() // cerrar el modal
+            },
+            createPDF (){
+                let columns = [
+                    {title:"Nombre",dataKey: "name"},
+                    {title:"Código",dataKey: "code"},
+                    {title:"Categoría",dataKey: "category"},
+                    {title:"Stock",dataKey: "stock"},
+                    {title:"Precio de venta",dataKey: "salePrice"},
+                ]; //columnas
+                let rows =[]; //filas
+
+                // recorro el array articles
+                this.articles.map((x)=>{
+                    console.log(x.category);
+                    rows.push(
+                        {
+                        name:x.name,
+                        code:x.code,
+                        category:x.category.name,
+                        stock:x.stock,
+                        salePrice:x.salePrice,
+                        }
+                    )
+                });
+                let doc = new jsPDF('p','pt');
+                doc.autoTable(columns,rows,{
+                    margin: {top: 60},
+                    addPageContent: function(data){
+                        doc.text("Lista de Artículos", 40, 30);
+                    }
+                })
+
+                doc.save('Artículos.pdf');
             }
         }
     }
