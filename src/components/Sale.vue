@@ -107,9 +107,9 @@
                                         </p>
                                     </div>
                                     <div id="fact">
-                                        <p>Factura<br>
-                                        0001-0004<br>
-                                        15/12/2020</p>
+                                        <p>{{comprobantType}}<br>
+                                        {{voucherSeries}}--{{comprobantNumber}}<br>
+                                        {{date}}</p>
                                     </div>
                                 </header>
                                 <br>
@@ -408,6 +408,7 @@
                 adId:'', // id del registro que deseo activar/desactivar
                 // comprobante modal
                 modalComprobant:0,
+                date:null,
                 }
         },
         computed: {
@@ -432,8 +433,17 @@
             this.selectPerson();
         },
         methods: {
-            viewComprobant(){
+            viewComprobant(item){
+                this.clean();
+                this.comprobantType = item.comprobantType;
+                this.voucherSeries = item.voucherSeries;
+                this.comprobantNumber = item.comprobantNumber;
+                this.person = item.person;
+                this.tax = item.tax;
+                this.getDetails(item._id);
+                this.date = item.createdAt;
                 this.modalComprobant = 1;
+
             },
             hideComprobant(){
                 this.modalComprobant = 0;
