@@ -88,7 +88,7 @@
                 <v-dialog v-model="modalComprobant" max-width="1000px">
                     <v-card>
                         <v-card-title class="headline">
-                            <v-btn>
+                            <v-btn @click="createPDF()">
                                 <v-icon>
                                     print
                                 </v-icon>
@@ -108,7 +108,7 @@
                                     </div>
                                     <div id="fact">
                                         <p>{{comprobantType}}<br>
-                                        {{voucherSeries}}--{{comprobantNumber}}<br>
+                                        {{voucherSeries}} - {{comprobantNumber}}<br>
                                         {{date}}</p>
                                     </div>
                                 </header>
@@ -119,11 +119,11 @@
                                             <tbody>
                                                 <tr>
                                                     <td id="cliente">
-                                                        <strong>Sr(a). Juan Carlos Arcila Díaz</strong><br>
-                                                        <strong>Documento:</strong> 47715777<br>
-                                                        <strong>Dirección:</strong> Zarumilla 113 - Chiclayo<br>
-                                                        <strong>Teléfono:</strong> 931742904<br>
-                                                        <strong>Email:</strong> jcarlos.ad7@gmail.com
+                                                        <strong>Sr(a). {{person.name}}</strong><br>
+                                                        <strong>Documento:</strong> {{person.docNumber}}<br>
+                                                        <strong>Dirección:</strong> {{person.direction}}<br>
+                                                        <strong>Teléfono:</strong> {{person.phone}}<br>
+                                                        <strong>Email:</strong> {{person.email}} 
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -144,12 +144,12 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td style="text-align:center;">cant</td>
-                                                    <td>descripcion del producto descripcion del producto descripcion del producto</td>
-                                                    <td style="text-align:right;">precio uni</td>
-                                                    <td style="text-align:right;">descuento</td>
-                                                    <td style="text-align:right;">precio total</td>
+                                                <tr v-for="det in details" :key="det._id">
+                                                    <td style="text-align:center;">{{det.quantity}}</td>
+                                                    <td>{{det.article}}</td>
+                                                    <td style="text-align:right;">{{det.salePrice}}</td>
+                                                    <td style="text-align:right;">{{det.discount}}</td>
+                                                    <td style="text-align:right;">{{(det.quantity*det.salePrice)-det.discount}}</td>
                                                 </tr>
                                             </tbody>
                                             <tfoot>
@@ -158,21 +158,21 @@
                                                     <th></th>
                                                     <th></th>
                                                     <th style="text-align:right;">SUBTOTAL</th>
-                                                    <th style="text-align:right;">subtotal</th>
+                                                    <th style="text-align:right;">${{partialTotal=(total-taxTotal).toFixed(2)}}</th>
                                                 </tr>
                                                 <tr>
                                                     <th></th>
                                                     <th></th>
                                                     <th></th>
-                                                    <th style="text-align:right;">IVA</th>
-                                                    <th style="text-align:right;">iva</th>
+                                                    <th style="text-align:right;">IVA({{tax}}%)</th>
+                                                    <th style="text-align:right;">${{taxTotal=((total*tax)/(1+tax)).toFixed(2)}}</th>
                                                 </tr>
                                                 <tr>
                                                     <th></th>
                                                     <th></th>
                                                     <th></th>
                                                     <th style="text-align:right;">TOTAL</th>
-                                                    <th style="text-align:right;">total</th>
+                                                    <th style="text-align:right;">${{total=calculateTotal}}</th>
                                                 </tr>
                                             </tfoot>
                                         </table>
@@ -341,6 +341,8 @@
 </template>
 <script>
     import axios from 'axios';
+    import jsPDF from 'jspdf';
+    import html2canvas from 'html2canvas';
     export default {
         data(){
             return{
@@ -673,7 +675,33 @@
                 this.viewNew=0;
                 this.clean();
             },
+            createPDF(){
+                let quotes = document.getElementById('invoice');
+                html2canvas(quotes)
+                    .then((canvas)=>{
+                        let imgData = canvas.toDataURL('image/png');
+                        let imgWidth = 210;
+                        let pageHeight = 295;
 
+                        let imgHeight = canvas.height * imgWidth / canvas.width;
+                        let heightLeft =imgHeight;
+
+                        let doc = new jsPDF('p', 'mm', 'a4');
+                        let position = 0;
+                        
+                        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                        heightLeft -= pageHeight;
+
+                        while (heightLeft >= 0){
+                            position = heightLeft -imgHeight;
+                            doc.addPage();
+                            doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                            heightLeft -= pageHeight;   
+                        }
+                        
+                        doc.save('Comprobante de venta.pdf')
+                })
+            },
             // editar y guardar
             save () {
              /*    console.log(validate()); */
